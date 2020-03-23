@@ -4,23 +4,35 @@ date: "2020-03-24T08:02:00"
 description: This is a tutorial for how to deploy a React Gatsby application to github.io
 ---
 
-I just created this blog using Gatsby and deployed it to github. If you want,
-you can see the source [here](https://github.com/Matthew-Burfield/matthew-burfield.github.io).
-The deployment however wasn't very straight forward, especially when you want to
-deploy to a GitHub pages subdomain at github.io. I.e. `username.github.io`.
+I just created this blog using Gatsby and deployed it to GitHub. If you want,
+you can see the source [here](https://github.com/Matthew-Burfield/matthew-burfield.github.io/tree/master-source).
+
+The deployment however wasn't very straight forward, especially when 
+deploying to a GitHub pages subdomain at github.io. I.e. `username.github.io`.
 
 This blog post is a reference for how you can deploy your Gatsby app to `username.github.io`.
 
-## The docs are wrong.
+### The docs are wrong.
 
-My first attempt was to follow the [docs](https://www.gatsbyjs.org/docs/how-gatsby-works-with-github-pages/).
-The docs tell you to first intall a package called `gh-pages`, and then add a
-new deploy script to your `package.json` file. The problem with doing this is that
+My first attempt was to follow the gatsby [docs](https://www.gatsbyjs.org/docs/how-gatsby-works-with-github-pages/).
+The docs tell you to simply add a package called `gh-pages`, and then add a
+new deploy script to your `package.json` file.
+
+The problem with doing this is that
 it creates a new gh-pages branch and deploys there, and if you want to deploy to
 `username.github.io`, your built app needs to be on the master branch.
 
+But your source code is in the master branch, and having your source and the 
+built app all in the same place just becomes a mess!
 
-### Install the `gh-pages` package
+### The docs are correct.
+
+The steps the Gatsby docs outline are actually right, we just need to add a couple
+more steps at the end, so lets start by adding the `gh-pages` package and deploy
+script as outlined in the docs.
+
+
+### 1. Install the `gh-pages` package.
 
 First, install the gh-pages package, you can use either npm or yarn. Go to the
 root level of your project directory, and on the command line type:
@@ -33,7 +45,7 @@ yarn:
 yarn add gh-pages --dev
 ```
 
-### Add a deploy script
+### 2. Add a deploy script.
 
 In your package.json file, add the following script.
 
@@ -48,7 +60,7 @@ In your package.json file, add the following script.
 This is where the gatsby docs stop, but there are a couple more steps required
 to cleanly get your app deployed.
 
-#### Create a new branch for your source code
+### 3. Create a new branch for your source code
 
 From inside your project directory, on the command line, type:
 ```
@@ -58,7 +70,13 @@ git push --set-upstream origin master-source
 
 This is the branch that is going to hold all your source code. From this branch,
 we can run our deploy script, and push the built version of our app to the master
+branch. All of your development and writing blog posts etc will be done on this 
 branch.
+
+The `master` branch will contain all the built app, but you don't need to change
+to the `master` branch, because the deploy script will deploy to the `master`
+branch for us. You can do this using npm or yarn:
+
 Using npm:
 ```
 npm run deploy
@@ -68,3 +86,10 @@ Using yarn:
 yarn deploy
 ```
 
+### Conclusion
+
+And there you have it! Your Gatsby app is now deployed to `username.github.io`.
+
+Special thanks to Olivia who had this solution on her blog, check it out [here](https://iolivia.me/posts/7-gatsby-deploy-github/)
+
+Happy coding!
