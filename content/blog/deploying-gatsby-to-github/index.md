@@ -1,5 +1,5 @@
 ---
-title: Deploying Gatsby to Github.io
+title: Deploying Gatsby to GitHub.io
 date: "2020-03-24T08:02:00"
 description: This is a tutorial for how to deploy a React Gatsby application to github.io
 ---
@@ -14,7 +14,7 @@ This blog post is a reference for how you can deploy your Gatsby app to `usernam
 
 ### The docs are wrong.
 
-My first attempt was to follow the gatsby [docs](https://www.gatsbyjs.org/docs/how-gatsby-works-with-github-pages/).
+My first attempt was to follow the Gatsby [docs](https://www.gatsbyjs.org/docs/how-gatsby-works-with-github-pages/).
 The docs tell you to simply add a package called `gh-pages`, and then add a
 new deploy script to your `package.json` file.
 
@@ -31,11 +31,11 @@ The steps the Gatsby docs outline are actually right, we just need to add a coup
 more steps at the end, so lets start by adding the `gh-pages` package and deploy
 script as outlined in the docs.
 
-
 ### 1. Install the `gh-pages` package.
 
-First, install the gh-pages package, you can use either npm or yarn. Go to the
+First, install the `gh-pages` package, you can use either npm or yarn. Go to the
 root level of your project directory, and on the command line type:
+
 npm:
 ```
 npm install gh-pages --save-dev
@@ -57,7 +57,7 @@ In your package.json file, add the following script.
 }
 ```
 
-This is where the gatsby docs stop, but there are a couple more steps required
+This is where the Gatsby docs stop, but there are a couple more steps required
 to cleanly get your app deployed.
 
 ### 3. Create a new branch for your source code
@@ -73,8 +73,8 @@ we can run our deploy script, and push the built version of our app to the maste
 branch. All of your development and writing blog posts etc will be done on this 
 branch.
 
-The `master` branch will contain all the built app, but you don't need to change
-to the `master` branch, because the deploy script will deploy to the `master`
+The `master` branch will contain the built version app, but you don't need to 
+switch to the `master` branch, because the deploy script will deploy to the `master`
 branch for us. You can do this using npm or yarn:
 
 Using npm:
