@@ -2,13 +2,13 @@ module.exports = {
   siteMetadata: {
     title: `Gatsby Starter Blog`,
     author: {
-      name: `Kyle Mathews`,
-      summary: `who lives and works in San Francisco building useful things.`,
+      name: `Matthew Burfield,`,
+      summary: `a software engineer from Brisbane, with a passion for building cool shit on the interwebs.`,
     },
-    description: `A starter blog demonstrating what Gatsby can do.`,
-    siteUrl: `https://gatsby-starter-blog-demo.netlify.com/`,
+    description: `A blog about the cool software things Matt is working on.`,
+    siteUrl: `https://matthewburfield.com/`,
     social: {
-      twitter: `kylemathews`,
+      twitter: `burfield12`,
     },
   },
   plugins: [
@@ -53,15 +53,15 @@ module.exports = {
     {
       resolve: `gatsby-plugin-google-analytics`,
       options: {
-        //trackingId: `ADD YOUR TRACKING ID HERE`,
+        trackingId: process.env.ANALYTICS_TRACKING_ID,
       },
     },
     `gatsby-plugin-feed`,
     {
       resolve: `gatsby-plugin-manifest`,
       options: {
-        name: `Gatsby Starter Blog`,
-        short_name: `GatsbyJS`,
+        name: `matthewburfield.com`,
+        short_name: `matthewburfield.com`,
         start_url: `/`,
         background_color: `#ffffff`,
         theme_color: `#663399`,
