@@ -1,6 +1,6 @@
 module.exports = {
   siteMetadata: {
-    title: `Gatsby Starter Blog`,
+    title: `matthewburfield.com`,
     author: {
       name: `Matthew Burfield,`,
       summary: `a software engineer from Brisbane, with a passion for building cool shit on the interwebs.`,
