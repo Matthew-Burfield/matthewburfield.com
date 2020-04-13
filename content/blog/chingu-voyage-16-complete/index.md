@@ -4,7 +4,7 @@ date: "2020-03-26T08:02:00"
 description: A report of my recent chingu voyage
 ---
 
-# An introduction
+## An introduction
 
 Before jumping straight into the project, it's probably worth giving a quick
 overview of what Chingu is and why I wanted to do a project.
@@ -22,7 +22,7 @@ add to your portfolio. It's a great way to keep yourself accountable.
 others. Now, 3 years later, I wanted to build something for fun and thought this
 would be a good way to do it.
 
-# My team and our project
+## My team and our project
 
 I had 5 members on my team, from various countries within the Asia-Pacific region
 (Chingu does it's best to group people into similar time-zones). Our first meeting
@@ -36,7 +36,7 @@ that it would be a good project to build.
 We set out some MVP requirements and some stretch goals we could work towards
 if we had time.
 
-# Project Requirements
+## Project Requirements
 
 The following user stories were used as requirements for this project.
 
@@ -52,7 +52,7 @@ see an existing registry
 
 5. User Story: As a non authenticated user, I can mark a registry gift as "purchased"
 
-# Life in a Voyage
+## Life in a Voyage
 
 The voyage went for 6 weeks, and each week we called a sprint. The idea of a sprint
 comes from the agile methodology where after each sprint you have a working product.
@@ -63,7 +63,7 @@ I spent most of this voyage working on the frontend, which was good as one of my
 goals was to work on the latest version of React, and get more comfortable working
 with hooks.
 
-# Improvements That Can Be Made
+## Improvements That Can Be Made
 
 Overall we did a pretty good job at getting a solid MVP working. Most of the flows
 work really well and the app is fully functional.
@@ -84,7 +84,7 @@ update this so all the authentication is done on the server.
 I think for this app to be able to be used in the real world, there would need
 to be a few more features, such as integrating with Stripe, or some payment system.
 
-# What I Liked About This Project
+## What I Liked About This Project
 
 I'm really happy with how this project came together. In only 6 weeks we built
 a fully functional wedding registry including both an admin portal for managing
@@ -95,7 +95,7 @@ I think the main thing that made this project successful was that our entire
 team was involved and staying consistent throughout the whole voyage. Every team
 member attended every virtual meeting through out the entire 6 weeks.
 
-# Conclusion
+## Conclusion
 
 I'm really happy I did this Chingu Voyage. It was a great motivator and kept me
 accountable. I also enjoyed working as the PM, organising the tasks for each

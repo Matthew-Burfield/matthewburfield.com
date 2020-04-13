@@ -8,7 +8,7 @@ tags: Vim
 ![Vim](./artem-sapegin-8c6eS43iq1o-unsplash.jpg)
 Photo by Artem Sapegin on Unsplash
 
-# What is Vim?
+## What is Vim?
 
 Vim is a text editor that's been around for nearly 30 years! It works differently
 to normal text editors because it was designed before the invention of the mouse!
@@ -39,7 +39,7 @@ the navigation system in Vim is so powerful makes it have a bit of a learning cu
 but at the same time has the potential for being able to edit documents at the speed
 of thought! 
 
-# Why did I start using Vim?
+## Why did I start using Vim?
 
 Think about that for a second; Editing documents at the speed of thought.
 If I'm programming in an editor like VS Code or Sublime, and I want to change the
@@ -60,7 +60,7 @@ let Vim integrate with linters and Git and color schemes and pretty much everyth
 you need to be super efficient at editing documents in whatever programming
 language you're using.
 
-# Getting started and first steps
+## Getting started and first steps
 
 The often recommended way to start in Vim is to open your terminal and type
 `vimtutor`. `vimtutor` is an interactive tutorial that will take you through
@@ -76,7 +76,7 @@ which I really enjoyed. It was fun to be able to gameify learning Vim. Vim Adven
 doesn't really teach you anything that you haven't already learnt through `vimtutor`
 but it does give you plenty more practice and using navigation keys.
 
-# Full time Vim
+## Full time Vim
 
 With my newfound knowledge of editing documents in Vim, I set the goal that I would
 use Vim whenever I worked on side projects, but that I couldn't possibly use it
@@ -122,7 +122,7 @@ and just look up commands for how to do stuff. If it takes you more than 3 or 4
 keystrokes to get to where you want to edit, then there's probably a more efficient
 way of doing it.
 
-# Conclusion
+## Conclusion
 
 It's been about 3 months since I switched to using Vim full time. I wouldn't say
 I'm super efficient using it yet but I am starting to feel more comfortable using it.

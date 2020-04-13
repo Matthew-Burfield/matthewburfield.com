@@ -12,7 +12,7 @@ deploying to a GitHub pages subdomain at github.io. I.e. `username.github.io`.
 
 This blog post is a reference for how you can deploy your Gatsby app to `username.github.io`.
 
-### The docs are wrong.
+## The docs are wrong.
 
 My first attempt was to follow the Gatsby [docs](https://www.gatsbyjs.org/docs/how-gatsby-works-with-github-pages/).
 The docs tell you to simply add a package called `gh-pages`, and then add a
@@ -25,13 +25,13 @@ it creates a new gh-pages branch and deploys there, and if you want to deploy to
 But your source code is in the master branch, and having your source and the 
 built app all in the same place just becomes a mess!
 
-### The docs are correct.
+## The docs are correct.
 
 The steps the Gatsby docs outline are actually right, we just need to add a couple
 more steps at the end, so lets start by adding the `gh-pages` package and deploy
 script as outlined in the docs.
 
-### 1. Install the `gh-pages` package.
+## 1. Install the `gh-pages` package.
 
 First, install the `gh-pages` package, you can use either npm or yarn. Go to the
 root level of your project directory, and on the command line type:
@@ -45,7 +45,7 @@ yarn:
 yarn add gh-pages --dev
 ```
 
-### 2. Add a deploy script.
+## 2. Add a deploy script.
 
 In your package.json file, add the following script.
 
@@ -60,7 +60,7 @@ In your package.json file, add the following script.
 This is where the Gatsby docs stop, but there are a couple more steps required
 to cleanly get your app deployed.
 
-### 3. Create a new branch for your source code
+## 3. Create a new branch for your source code
 
 From inside your project directory, on the command line, type:
 ```
@@ -86,7 +86,7 @@ Using yarn:
 yarn deploy
 ```
 
-### Conclusion
+## Conclusion
 
 And there you have it! Your Gatsby app is now deployed to `username.github.io`.
 
