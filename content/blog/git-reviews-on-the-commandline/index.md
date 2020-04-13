@@ -23,7 +23,8 @@ additions and deletions and outputs them on top of one another similar to the
 unified view on GitHub. It isn't an ideal solution though, especially for larger
 reviews.
 
-<!-- Add image of commandline code review -->
+![Git diff screenshot](./git-diff-screenshot.png)
+A screenshot of my terminal viewing the `git diff` command
 
 With larger code reviews, and reviews with a lot of updates to a single file,
 it's hard to get a sense of what really has changed. In the unified view, you can
@@ -44,7 +45,8 @@ side by side, with editing capabilities right in the diff.
 Having the diffs side by side makes it so much easier to get context on where
 the changes have been made within the file.
 
-<!-- Add image of `git review` -->
+![Git review screenshot](./git-review-screenshot.png)
+A screenshot of my terminal viewing the `git review` command
 
 I mean, that looks pretty slick.
 
