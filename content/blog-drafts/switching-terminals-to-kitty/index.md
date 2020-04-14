@@ -1,6 +1,6 @@
 ---
 title: Switching terminals to Kitty
-date: ""
+date: "2020-04-15T00:00:00.000Z"
 description: A tutorial for how I switched my main terminal
 tags: Tutorial, Terminal, Kitty
 ---
