@@ -5,7 +5,7 @@ description: An awesome way to do your git reviews on the commandline
 tags: Git, Commandline, Tutorial
 ---
 
-![Vim](./sebastien-gabriel--IMlv9Jlb24-unsplash.jpg)
+![sunrise](./sebastien-gabriel--IMlv9Jlb24-unsplash.jpg)
 Photo by Sebastien Gabriel on Unsplash
 
 ## Introduction

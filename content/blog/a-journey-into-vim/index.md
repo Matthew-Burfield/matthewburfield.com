@@ -5,7 +5,7 @@ description: A story of my journey into vim
 tags: Vim
 ---
 
-![Vim](./artem-sapegin-8c6eS43iq1o-unsplash.jpg)
+![sunrise](./artem-sapegin-8c6eS43iq1o-unsplash.jpg)
 Photo by Artem Sapegin on Unsplash
 
 ## What is Vim?
