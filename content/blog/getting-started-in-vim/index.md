@@ -1,0 +1,190 @@
+---
+title: Getting started in Vim
+date: "2020-04-16T00:00:00.000Z"
+description: Some tips for getting started in Vim
+tags: Tutorial, Vim
+---
+
+![sunrise](./frank-mckenna-4V8JxijgZ_c-unsplash.jpg)
+Photo by frank mckenna on Unsplash
+
+# An introduction
+
+<!--
+looking at other peoples .vimrc
+(but not copying them)
+-->
+
+I am by no means an expert in Vim, but I have had my fair amount of attempts at
+using Vim (and then giving up again), but now have gotten to a point where I think
+I'm here to stay - at least for the foreseeable future.
+
+These are my top tips and gotchas that worked for me.
+
+#### Start with Vim tutor
+
+This one isn't exactly a "hot scoop", you'll see this tip in every Vim guide you
+look at. But it's there for a reason, in 20 minutes, it'll take you from zero to
+being functional in Vim. You'll be able to open, exit, edit, save. All the basic
+commands.
+
+To run Vim tutor open up your terminal and type
+```
+vimtutor
+```
+An interactive guide will guide you through the rest.
+
+#### Use Vim as often as you can
+
+If you're like I was and starting from scratch, Vim probably works differently
+to every other editor you've used in your life.
+
+There are a bunch of new keyboard shortcuts that you aren't used to using.
+
+So if you only use Vim once a week, you'll need to keep re-learning all those
+shortcuts over and over. Once you learn something new in Vim, you need to keep
+re-using it until it becomes locked in memory.
+
+#### Make your own cheat sheet
+
+It's tempting to go online and find a complete cheat sheet with all the different
+Vim bindings on it. For me I just found that overwhelming. Instead, I'd suggest
+making your own cheat sheet and writing down 5-7 different Vim commands.
+
+Use those commands on your cheat sheet as much as you can, after a week it should
+be locked into memory - or if you don't use that command, then replace it with
+another.
+
+#### Use Vim plugins for your favourite editor
+
+The hardest part for me when starting in Vim was working with multiple files.
+It was a massive barrier to entry and meant that using Vim while working in large
+projects was just not possible.
+
+Both VSCode and Sublime have Vim plugins and I highly recommend using them when
+starting. It means you'll be able to concentrate on just the editing aspect of Vim
+at first, and you don't have to worry about search, find and replace, working in
+multiple files, global search, global search and replace...at those extra things
+that your editor of choice will support out the box.
+
+Try your best to not use the mouse if you can, but at least you'll have it there
+if you need it to help you out of a jam.
+
+#### Don't use the arrow keys!
+
+It can be real tempting to use the arrow keys to move around. But speed and mastery
+of Vim comes from being able to keep your fingers on the home row for as much
+as possible. So use h, j, k and l and after a day you'll be used to it.
+
+#### Don't use h, j, k l!
+
+"Dude, what gives? You totally just told me to use h, j, k, l".
+
+h, j, k, and l are good starting points to move around, but if you're pressing
+those keys more than a few times in a row to get to where you want to be, then
+there is probably a faster way with less key stokes.
+
+#### Vim golf
+
+(Vim golf)[https://www.vimgolf.com/] is online source of challenges where you
+need to convert some given text to what it's given to you as, to a specified End file.
+
+For example, the top challenge today is titled **Prepend * to every non-blank line**.
+
+Where this is the start file:
+```
+This is a
+very short
+
+file, but it is 
+still
+full
+
+of
+
+surpises.
+```
+
+And this is the end file:
+```
+*This is a
+*very short
+
+*file, but it is 
+*still
+*full
+
+*of
+
+*surpises.
+```
+
+You need to edit the file so that you end up with the contents of the end file.
+
+Vim Golf will record all your keystrokes, and place you on a leader board based
+on the amount of keystrokes you have. With the least amount of keystrokes the better.
+
+The beauty of Vim Golf from a learning perspective, is that after you submit your
+attempt, Vim Golf will show you the solutions for other attempts that are in the
+same range as your score (+/- a few keystrokes). This means that you can look
+and the keystrokes other people had and see if they are using shortcuts that you didn't
+know about.
+
+I found this to be a fun exercise to do, and it's where I learnt how to do
+(macros)[https://vim.fandom.com/wiki/Macros].
+
+#### Vim Adventures
+
+Another fun way to gameify learning was (Vim Adventures)[https://vim-adventures.com/]
+The "character" you play is the cursor and you move around the world using the Vim
+motion keys. You start by only being able to move using the h, j, k, l keys,
+and then slowly unlock other motion keys.
+
+The pricing model is a bit annoying - its $25 for 6 months of access, but I found
+the game enjoyable to play and it'll take you a good few hours to play through
+the game.
+
+#### Customising Vim
+
+Once you decide to venture out into running Vim through your terminal, you're going
+to want to customise it. Customising Vim is probably one of it's most powerful
+features in terms of being able to edit documents really quickly, and it'll take
+a life time to constantly tweak it to your needs. 
+
+The way you customise vim is to edit your `~/.vimrc` file.
+
+In my first attempt at venturing into terminal land, I wanted to be fast straight
+away so I just copied someone elses `.vimrc` and away I went. __But this is a trap__.
+
+The problem with using someone else's customisations, is that it's customised to them.
+There isn't really a shortcut for customising Vim, you need to do it slowly so that
+you know what's going on.
+
+Definitely look at other peoples `.vimrc` for "dot files", and try to learn from
+them. But try to look up the documentation for everything you put in there and
+add a comment for what it does so you can remember when you come back to it later.
+
+There are tons of well written dot files out there, but one that I stumbled across
+recently after reading one of his articles was from Nick Janetakis. You can see his
+`.vimrc` file (here)[https://github.com/nickjj/dotfiles/blob/master/.vimrc].
+
+I like how it's laid out and that he has comments explaining what everything does.
+
+Two plugins that I would recommend starting with are
+(NerdTree)[https://github.com/preservim/nerdtree] and
+(fzf)[https://github.com/junegunn/fzf].
+
+I have mine set up the way Nick does and it enables me to work in large projects
+with fuzzy finding search and file management from inside Vim.
+
+As for the rest, I recommend you slowly build up your `.vimrc` customisations
+one by one.
+
+#### Conclusion
+
+I hope some of these tips are able to help you getting started in Vim. I spent
+a lot of time doing things that weren't helpful or made me quit several times
+and I think having a list like this a couple of years ago would've sent me down
+the right path in starting Vim a lot sooner.
+
+Happy Coding!
