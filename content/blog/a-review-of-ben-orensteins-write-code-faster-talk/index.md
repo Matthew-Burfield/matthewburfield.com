@@ -1,5 +1,5 @@
 ---
-title: Write code faster: Expert-level Vim; A review
+title: Write code faster Expert-level Vim; A review
 date: "2020-04-17T00:00:00.000Z"
 description: A review of the Railsberry talk in 2012 by Ben Orenstein
 tags: Review, Vim
