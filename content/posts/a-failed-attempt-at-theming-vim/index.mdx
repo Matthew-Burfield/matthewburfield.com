@@ -1,0 +1,111 @@
+---
+title: A failed attempt at theming Vim
+date: 2020-04-19
+excerpt: How I attempted to create a new Vim theme but failed
+tags: [ Vim ]
+---
+
+![sunrise](./johannes-plenio-qkfxBc2NQ18-unsplash.jpg)
+Photo by Johannes Plenio on Unsplash
+
+**Disclaimer**: If you came here looking for how to create a theme in Vim then
+you'll be sorely disappointed. This is not a story about overcoming the odds and
+winning in the end. This story does not have a happy ending.
+
+## Introduction
+
+I've only just recently started using Vim as my main editor, moving away from
+the safe and comfortable VSCode to editing exclusively in the terminal.
+
+Obviously that means moving away from an IDE - which means you will lose some
+functionality from the editor, but for the most part, working from the terminal
+has been a pretty nice experience so far as I continue to get used to working
+without using the mouse.
+
+One thing that did bother me though, is the syntax highlighting. Syntax
+highlighting in VSCode seems to be much more expressive, especially when looking
+at `.jsx` files.
+
+Here's a look at a comparison between Vim in the terminal and VSCode using the
+one-dark themes.
+
+![A React `.jsx` file in VSCode](./a-react-jsx-file-in-vscode.png)
+A React `.jsx` file in VSCode
+
+And conversely, here is the equivalent in Vim
+
+![A React `.jsx` file in Vim](./a-react-jsx-file-in-vim.png)
+A React `.jsx` file in Vim
+
+Obviously when it comes to syntax highlighting, everything is personal
+preference, but with all the different themes I tried to use in Vim, I always
+seemed to like the equivalent in VSCode better.
+
+Naturally this led me down the path of looking into how color themes are made in
+Vim and whether I could edit an existing one or create my own.
+
+After much searching around, I stumbled across [this template by Gerardo
+Galindez](https://github.com/ggalindezb/vim_colorscheme_template/blob/master/template.vim) which worked pretty well, it has a nice layout and has a list of all the different syntax highlighting groups in Vim, grouped by category.
+
+This was a good starting point. I wanted to reset all the colors in Vim to
+nothing so I could then start adding colors one by one and build out my theme,
+and this template looked like it would achieve that task.
+
+In Vim, you can load your own color theme by adding your theme (such as the
+template above) to the
+`~/.vim/colors/` directory (If that directory doesn't exist, you can create
+it). Then, in your `~/.vimrc` file, add the line:
+
+```vim
+colorscheme my_theme_name
+```
+
+Where `my_theme_name` is replaced with whatever you call your theme.
+
+The template above started me down the right track for what I wanted to
+accomplish in completely resetting all colors, but it wasn't the complete
+picture. Because I had enabled 256 color support, the syntax groups weren't
+simply being highlighted with the `ctermfg`, `ctermbg` and `cterm` options, but
+were also being highlighted with `guifg`, `guibg` and `gui` as well. Therefore in order to truely reset all syntax highlights, I needed to set those options to
+`none` as well.
+
+If you want to read more about those terms, I suggest starting with Vim's
+internal help. (I.e. `:h guifg`).
+
+[I created a new template](https://gist.github.com/Matthew-Burfield/7d29195594c9c809b08fdb97df02d682) that incorporates this and now I do have a complete
+reset of colors. The text is plain white, while everthing else is plain black.
+
+Now I could slowly start adding colors to each syntax group, and slowly start to
+build out the theme I wanted.
+
+This was kind of working until I realised that with only the syntax groups
+availabile by default in Vim, I wasn't able to customise language specific
+syntax groups. I only really work with a JavaScript and React, so wanted to be
+able to customise `.jsx` files.
+
+I started looking at the internals of syntax plugins like
+[pangloss/vim-javascript]( https://github.com/pangloss/vim-javascript ) which
+I think create new syntax groups using a bunch of regex expressions, and then
+map those new syntax groups to the regular syntax groups in Vim so syntax
+highlighting works out of the box with other syntax highlighting plugins.
+
+What I tried to do was reference the internally defined syntax groups defined
+by `pangloss/vim-javascript` directly. Some of these did actually work, like 
+the `jsImport` and `jsExport` groups. However most of them didn't, or at least,
+based on the name of the group, it wasn't immediately obvious what the syntax
+group should actually change. This led to a lot of setting a color, then
+re-sourcing the vimrc in my `.jsx` file, to look at anything that changed.
+
+_An excruciatingly long process_
+
+I'm sure this isn't the most efficient way to create a theme, but by this stage I had pretty much wasted an entire weekend just to get to this point and promptly gave up 😅.
+
+## Conclusion
+
+I did warn you that this wasn't a story with a happy ending.
+
+My current setup is using the gruvbox light theme and I don't mind it. Maybe
+some day I'll revisit creating a theme in Vim, but for now I have better things
+to do.
+
+Happy Coding!
