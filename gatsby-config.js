@@ -84,19 +84,7 @@ module.exports = {
     },
     `gatsby-transformer-sharp`,
     `gatsby-plugin-sharp`,
-    {
-      resolve: `gatsby-plugin-feed`,
-      options: {
-        feeds: [
-          getBlogFeed({
-            filePathRegex: `//content/blog//`,
-            blogUrl: 'https://matthewburfield.com/',
-            output: '/blog/rss.xml',
-            title: 'Matthew Burfield Blog RSS Feed',
-          }),
-        ],
-      },
-    },
+    `gatsby-plugin-feed`,
     {
       resolve: `gatsby-plugin-manifest`,
       options: {
@@ -120,65 +108,4 @@ module.exports = {
     // To learn more, visit: https://gatsby.dev/offline
     // `gatsby-plugin-offline`,
   ],
-}
-
-// Borrowed from kentcdodds.com
-function getBlogFeed({ filePathRegex, blogUrl, ...overrides }) {
-  /**
-   * These RSS feeds can be quite expensive to generate. Limiting the number of
-   * posts and keeping each item's template lightweight (only using frontmatter,
-   * avoiding the html/excerpt fields) helps negate this.
-   */
-  return {
-    serialize: ({ query: { allMdx } }) => {
-      const stripSlash = slug => (slug.startsWith('/') ? slug.slice(1) : slug)
-      return allMdx.edges.map(edge => {
-        const url = `${siteUrl}/${stripSlash(edge.node.fields.slug)}`
-
-        return {
-          ...edge.node.frontmatter,
-          date: edge.node.fields.date,
-          url,
-          guid: url,
-          custom_elements: [
-            {
-              'content:encoded': `<div style="width: 100%; margin: 0 auto; max-width: 800px; padding: 40px 40px;">
-                  <p>
-                    I've posted a new article <em>"${edge.node.frontmatter.title}"</em> and you can <a href="${url}">read it online</a>.
-                    <br>
-                    ${edge.node.fields.plainTextDescription}
-                  </p>
-                </div>`,
-            },
-          ],
-        }
-      })
-    },
-    query: `
-       {
-         allMdx(
-           limit: 25,
-           filter: {
-             frontmatter: {published: {ne: false}}
-             fileAbsolutePath: {regex: "${filePathRegex}"}
-           }
-           sort: { order: DESC, fields: [frontmatter___date] }
-         ) {
-           edges {
-             node {
-               fields {
-                 slug
-                 date
-                 plainTextDescription
-               }
-               frontmatter {
-                 title
-               }
-             }
-           }
-         }
-       }
-     `,
-    ...overrides,
-  }
 }
