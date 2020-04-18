@@ -1,9 +1,7 @@
 ---
 title: Do npm dependencies and devDependencies effect your production build?
 date: "2020-04-18T00:00:00.000Z"
-description: A definitive guide on the differences between you dev dependencies
-and regular dependencies in your package.json file and how they effect your
-production build.
+description: A definitive guide on the differences between you dev dependencies and regular dependencies in your package.json file and how they effect your production build.
 tags: Development, NodeJS, Yarn, NPM, Deployment
 ---
 

@@ -13,6 +13,33 @@ module.exports = {
   },
   plugins: [
     {
+      resolve: `gatsby-plugin-google-gtag`,
+      options: {
+        // You can add multiple tracking ids and a pageview event will be fired for all of them.
+        trackingIds: [
+          'UA-162047547-1', // Google Analytics / GA
+          // "AW-CONVERSION_ID", // Google Ads / Adwords / AW
+          // "DC-FLOODIGHT_ID", // Marketing Platform advertising products (Display & Video 360, Search Ads 360, and Campaign Manager)
+        ],
+        // This object gets passed directly to the gtag config command
+        // This config will be shared across all trackingIds
+        // gtagConfig: {
+        //   optimize_id: 'GTM-5HJX52F',
+        //   anonymize_ip: true,
+        //   cookie_expires: 0,
+        // },
+        // This object is used for configuration specific to this plugin
+        pluginConfig: {
+          // Puts tracking script in the head instead of the body
+          head: true,
+          // Setting this parameter is also optional
+          // respectDNT: true,
+          // Avoids sending pageview hits from custom paths
+          // exclude: ['/preview/**', '/do-not-track/me/too/'],
+        },
+      },
+    },
+    {
       resolve: `gatsby-source-filesystem`,
       options: {
         path: `${__dirname}/content/blog`,
@@ -57,7 +84,19 @@ module.exports = {
     },
     `gatsby-transformer-sharp`,
     `gatsby-plugin-sharp`,
-    `gatsby-plugin-feed`,
+    {
+      resolve: `gatsby-plugin-feed`,
+      options: {
+        feeds: [
+          getBlogFeed({
+            filePathRegex: `//content/blog//`,
+            blogUrl: 'https://matthewburfield.com/',
+            output: '/blog/rss.xml',
+            title: 'Matthew Burfield Blog RSS Feed',
+          }),
+        ],
+      },
+    },
     {
       resolve: `gatsby-plugin-manifest`,
       options: {
@@ -80,32 +119,66 @@ module.exports = {
     // this (optional) plugin enables Progressive Web App + Offline functionality
     // To learn more, visit: https://gatsby.dev/offline
     // `gatsby-plugin-offline`,
-    {
-      resolve: `gatsby-plugin-google-gtag`,
-      options: {
-        // You can add multiple tracking ids and a pageview event will be fired for all of them.
-        trackingIds: [
-          'UA-162047547-1', // Google Analytics / GA
-          // "AW-CONVERSION_ID", // Google Ads / Adwords / AW
-          // "DC-FLOODIGHT_ID", // Marketing Platform advertising products (Display & Video 360, Search Ads 360, and Campaign Manager)
-        ],
-        // This object gets passed directly to the gtag config command
-        // This config will be shared across all trackingIds
-        // gtagConfig: {
-        //   optimize_id: 'GTM-5HJX52F',
-        //   anonymize_ip: true,
-        //   cookie_expires: 0,
-        // },
-        // This object is used for configuration specific to this plugin
-        pluginConfig: {
-          // Puts tracking script in the head instead of the body
-          head: true,
-          // Setting this parameter is also optional
-          // respectDNT: true,
-          // Avoids sending pageview hits from custom paths
-          // exclude: ['/preview/**', '/do-not-track/me/too/'],
-        },
-      },
-    },
   ],
+}
+
+// Borrowed from kentcdodds.com
+function getBlogFeed({ filePathRegex, blogUrl, ...overrides }) {
+  /**
+   * These RSS feeds can be quite expensive to generate. Limiting the number of
+   * posts and keeping each item's template lightweight (only using frontmatter,
+   * avoiding the html/excerpt fields) helps negate this.
+   */
+  return {
+    serialize: ({ query: { allMdx } }) => {
+      const stripSlash = slug => (slug.startsWith('/') ? slug.slice(1) : slug)
+      return allMdx.edges.map(edge => {
+        const url = `${siteUrl}/${stripSlash(edge.node.fields.slug)}`
+
+        return {
+          ...edge.node.frontmatter,
+          date: edge.node.fields.date,
+          url,
+          guid: url,
+          custom_elements: [
+            {
+              'content:encoded': `<div style="width: 100%; margin: 0 auto; max-width: 800px; padding: 40px 40px;">
+                  <p>
+                    I've posted a new article <em>"${edge.node.frontmatter.title}"</em> and you can <a href="${url}">read it online</a>.
+                    <br>
+                    ${edge.node.fields.plainTextDescription}
+                  </p>
+                </div>`,
+            },
+          ],
+        }
+      })
+    },
+    query: `
+       {
+         allMdx(
+           limit: 25,
+           filter: {
+             frontmatter: {published: {ne: false}}
+             fileAbsolutePath: {regex: "${filePathRegex}"}
+           }
+           sort: { order: DESC, fields: [frontmatter___date] }
+         ) {
+           edges {
+             node {
+               fields {
+                 slug
+                 date
+                 plainTextDescription
+               }
+               frontmatter {
+                 title
+               }
+             }
+           }
+         }
+       }
+     `,
+    ...overrides,
+  }
 }
