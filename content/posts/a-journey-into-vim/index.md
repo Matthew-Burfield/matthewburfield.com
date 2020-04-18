@@ -1,8 +1,8 @@
 ---
 title: A journey into vim
-date: "2020-04-13T00:00:00.000Z"
-description: A story of my journey into vim
-tags: Vim
+date: 2020-04-13
+excerpt: A story of my journey into vim
+tags: [Vim]
 ---
 
 ![sunrise](./artem-sapegin-8c6eS43iq1o-unsplash.jpg)
