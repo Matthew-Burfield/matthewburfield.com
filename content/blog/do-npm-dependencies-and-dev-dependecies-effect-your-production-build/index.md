@@ -1,0 +1,223 @@
+---
+title: Do npm dependencies and devDependencies effect your production build?
+date: "2020-04-18T00:00:00.000Z"
+description: A definitive guide on the differences between you dev dependencies
+and regular dependencies in your package.json file and how they effect your
+production build.
+tags: Development, NodeJS, Yarn, NPM, Deployment
+---
+
+![Sunrise - Nevada, United States](./andrey-grinkevich-0x6RTts1jRU-unsplash.jpg)
+Photo by Andrey Grinkevich on Unsplash
+
+#### An introduction
+
+A question I often ask myself when installing new npm packages in my projects is
+what's the difference between `dependencies` and `devDependencies` in your
+`package.json` file. Further to that, is there any difference in how they're
+handled between `Yarn` and `NPM`? If I uneccessarily add modules as `dependencies`
+when they could be `devDependencies` what will happen? And visa-versa, what
+happens if I accedentally install as a `devDependency` when it needs to be a
+`dependency`?  Will my deployments break? Will my build bundle get bloated?
+
+These are the questions I want answered. And they're the answers you'll find in
+this post.
+
+#### `yarn install` vs `npm install`
+
+Looking at the documentation for both Yarn and NPM, their install commands work
+the same way in terms of dependencies and devDependencies.
+
+When using `yarn install` and `npm install`, both Yarn and NPM will install all
+the dependencies listed in within the `package.json` in the local `node_modules`
+folder. That is, they'll install both the `dependencies` and `devDependencies`.
+
+Similarly, both Yarn and NPM will do the same thing when doing a production
+install.  That is, `yarn install --production` or `npm install --production`.
+Here are snippets from both sets of documentation.
+
+Yarn
+> Yarn will not install any package listed in `devDependencies` if the
+> `NODE_ENV` environment variable is set to `production`. Use this flag to
+> instruct Yarn to ignore `NODE_ENV` and take its production-or-not status from
+> this flag instead.
+
+NPM
+> With the `--production` flag (or when the `NODE_ENV` environment variable is
+> set to `production`), npm will not install modules listed in
+> `devDependencies`. To install all modules listed in both `dependencies` and
+> `devDependencies` when `NODE_ENV` environment variable is set to `production`,
+> you can use `--production=false.`
+
+This answers my first question:
+
+**Q: What's the difference between dependencies and devDependencies?**
+
+**A: Both dependencies and devDependencies are installed to the local `node_modules`
+folder on a `yarn install` or `npm install`, but only dependencies - and not
+devDependencies - are installed to the local `node_modules` folder when doing a
+`yarn install --production` and `npm install --production`.**
+
+That's good to know, but I wanted to know more. I want to know what happens
+when I uneccessarily add modules as dependencies and/or accidentally add
+devDependencies that should be dependencies and what the result is to my
+production build.
+
+I think the best way to determine these scenarios are with a few example projects.
+
+#### Creating a test project to compare
+
+I really wanted to keep this test framework agnostic, at first I was going to
+use a simple node.js server, but there isn't really a build step for that.
+
+In the end I did go with a framework, I tested with Create React App, and I did
+this for a few reasons.
+
+1. Create React App is already optimized for production builds. I don't have to
+	 worry about webpack code splitting or minimising etc, as all of that logic is
+abstracted and has already been optimized.
+2. I work a lot with React so I'm familiar with the setup.
+
+After getting setup with `create-react-app` I ran a production build which
+returned these results.
+
+```bash
+$ yarn build
+yarn run v1.22.4
+$ react-scripts build
+Creating an optimized production build...
+Compiled successfully.
+
+File sizes after gzip:
+
+  39.4 KB  build/static/js/2.a7466e6b.chunk.js
+  791 B    build/static/js/runtime-main.c4e2e950.js
+  659 B    build/static/js/main.2a00e9d5.chunk.js
+  547 B    build/static/css/main.5f361e03.chunk.css
+
+The project was built assuming it is hosted at /.
+You can control this with the homepage field in your package.json.
+
+The build folder is ready to be deployed.
+You may serve it with a static server:
+
+  yarn global add serve
+  serve -s build
+
+Find out more about deployment here:
+
+  bit.ly/CRA-deploy
+
+Done in 4.26s.
+```
+
+This gives us the bundle sizes for our production build. I can even serve the
+production build locally with `npx serve -s build` and watch the bundles download in the web browser.
+
+![Downloaded assets of stock create-react-app production build in the browser](./stock-react-app-production-build.png)
+The downloaded assests of the stock create-react-app production build in Chrome.
+
+Note that in the above image, the light grey size number is the size of the
+actual file, where as the darker coloured size is the compressed file size that
+got transferred over the network. The compressed sizes differ to the gziped
+sizes that the `create-react-app` build script told us, but the actual file
+sizes _are_ consistent with the file sizes I see on my file system.
+
+I want to test two cases:
+1. What happens when I add a module that should be a `dependency` as
+a `devDependency` and;
+2. What happens when I add a module that should be a `devDependency` as a `dependeny`.
+
+For the first test, I'm going to add `moment.js` to the project. Moment is a
+pretty popular package for parsing, validating, manipulating and formatting
+dates. The unpacked module size is 2.79 MB so we should be able to see a
+difference in our build bundle sizes.
+
+Firstly I added moment correctly as a actual `dependency`, to see what the build
+would look like so we have something to compare it to later.
+
+```bash
+Creating an optimized production build...
+Compiled successfully.
+
+File sizes after gzip:
+
+  55.79 KB (+16.39 KB)  build/static/js/2.8f81fcde.chunk.js
+  791 B                 build/static/js/runtime-main.c4e2e950.js
+  703 B (+44 B)         build/static/js/main.55c05814.chunk.js
+  547 B                 build/static/css/main.5f361e03.chunk.css
+```
+
+Here we can see that adding `moment.js` to our project increased our production
+bundle size by 16.39 KB in one chunk, and 44 B in another. This is pretty
+consistent with [momentjs.com](https://momentjs.com/) which says the minified
+`moment.js` files are 16.7 KB gzipped.
+
+Then I removed `moment.js` from the project and re-ran the production build to reset
+it back to stock standard Create React App, before re-adding `moment.js` again as a
+`devDependency` this time.
+
+Interestingly, adding moment instead as a `devDependency` returned the exact same result.
+
+```bash
+Creating an optimized production build...
+Compiled successfully.
+
+File sizes after gzip:
+
+  55.79 KB (+16.39 KB)  build/static/js/2.8f81fcde.chunk.js
+  791 B                 build/static/js/runtime-main.c4e2e950.js
+  703 B (+42 B)         build/static/js/main.55c05814.chunk.js
+  547 B                 build/static/css/main.5f361e03.chunk.css
+```
+
+We can also see this in the browser
+
+![Downloaded assets of create-react-app production build in the browser with
+moment.js](./react-app-production-build-with-moment-js.png)
+The downloaded assests of the create-react-app production build in Chrome with
+moment.js.
+
+##### Conclusion
+
+Originally, I was also going to test with something like Typescript or Jest as
+well, to see if adding them to either `dependencies` or `devDependencies` made a
+difference to the final production build as well. But it's clear to me from the
+first test that webpack doesn't care if a module is listed in the `dependencies`
+or `devDependencies`.
+
+So I learnt two things today;
+
+**1. `yarn install` and `npm install` will install both the `dependencies` and
+`devDependencies` in your project's `package.json` file. While `yarn install
+--production` and `npm install --production` will install only the
+`dependencies`, and will not install any modules from the `devDependencies`.**
+
+**2. Your production build won't be bloated if you accidentally put modules that
+should be only be a development depencency as a dependency or visa versa.
+Webpack will only pull in the modules that it's actually using regardless.**
+
+It's clear from the tests above that npm modules installed as `dependencies` and
+`devDependencies` don't matter in terms of your production build, as webpack
+will still pull in any module it needs for it's production build, regardless of
+how to module was installed.
+
+Where it will matter however, if how you perform your production build. If, for
+example, you have a CI/CD step that automatically builds your app when you
+deploy to your `master branch` on GitHub, and that CI/CD step is installing your
+project dependencies with `yarn install --production` or `npm install
+--production`, then any `devDependencies` won't be downloaded.
+
+That would be a problem if your app was similar to my test above where the
+project uses `moment.js`, even though it's installed as a `devDependency`
+because `moment.js` will never be installed. Then, when webpack tries to run
+it's build, it will fail because of the missing `moment.js` module.
+
+Other than that, in terms of optimising your production build, modules installed
+via a `dependency` or `devDependency` don't really matter. At least when using
+the production build in Create React App.
+
+If you disagree of think I missed something, definitely let me know on
+[Twitter](https://twitter.com/Burfield12).
+
+Happy Coding!
