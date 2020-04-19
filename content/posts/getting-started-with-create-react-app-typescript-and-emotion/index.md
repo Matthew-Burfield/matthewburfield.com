@@ -1,0 +1,211 @@
+---
+title: Getting started with Create React App, Typescript and Emotion themes
+slug: getting-started-with-create-react-app-typescript-and-emotion-themes
+date: 2020-04-20
+excerpt: A tutorial for how to get started with a new project
+tags: [tutorial, CRA, typescript, emotion]
+---
+
+![sunrise](./yousef-espanioly-DA_tplYgTow-unsplash.jpg)
+Photo by Yousef Espanioly on Unsplash
+
+## Introduction
+
+I recently started a new project and I've decided that for this project, I want to
+use Typescript as a means to learn. Getting set up with CRA and Typescript is
+pretty straight forward, as it just works out of the box. Adding emotion.js for
+styling wasn't too hard either, but getting it working with theming took a bit
+of confuguring which is what I'll cover here.
+
+What I mean by theming is I want to create a light and dark theme, and have the
+user be able to switch between the two.
+
+Without further ado, let's get started. To start a new Create React app project
+with TypeScript, you can run:
+
+```bash
+npx create-react-app my-app --template typescript
+```
+
+This will download the latest versions of everything Create React App needs to
+get your project initialized. After which, you can simply type:
+
+```bash
+cd my-app
+yarn start
+```
+
+And a development server will launch.
+
+That's everything you need to do to get started with Create React App and
+TypeScript. If you want to read more or got stuck somewhere, I'd suggest first
+reading the [Create React App
+documentation](https://create-react-app.dev/docs/adding-typescript/).
+
+#### Adding emotion
+
+[Emotion](https://emotion.sh/docs/introduction) is a library designed for
+writing css styles with JavaScript which we can use with our React apps. Adding
+emotion is easy. Simply run this command in your project root directory:
+
+```bash
+yarn add @emotion/core @emotion/styled
+```
+
+And you're good to go! Here's an example of what a React component looks like
+when styled with emotion:
+
+_Button.tsx_
+```jsx
+/** @jsx jsx */
+import { jsx } from '@emotion/core'
+import styled from '@emotion/styled/macro'
+
+const Button = styled.button`
+color: hotpink;
+`
+
+export default Button;
+```
+
+_App.tsx_
+```diff
+import React from 'react';
++import Button from './Button';
+import logo from './logo.svg';
+import './App.css';
+
+function App() {
+  return (
+    <div className="App">
+      <header className="App-header">
+        <img src={logo} className="App-logo" alt="logo" />
+        <p>
+          Edit <code>src/App.tsx</code> and save to reload.
+        </p>
++	<Button>This button is hotpink!</Button>
+        <a
+          className="App-link"
+          href="https://reactjs.org"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Learn React
+        </a>
+      </header>
+    </div>
+  );
+}
+
+export default App;
+```
+
+For more TypeScript related information for using emotion with TypeScript, I'd
+recommend you checkout the [emotion documentation on typescript](https://emotion.sh/docs/typescript).
+
+If all you want to do is use emotion with your project, then you can stop here.
+You're all good to start creating an awesome React app.
+
+If you want to add theming to your project, then you'll also need to follow
+these next steps.
+
+#### Adding an emotion theme
+
+First, you need to add the `emotion-theming` library.
+
+```bash
+yarn add emotion-theming
+```
+
+Then, you need to define your theme. You need to do this in a seperate file so
+you can export `styled` using the `CreateStyled` function that `@emotion/styled`
+gives you.
+
+_styled.tsx_
+```javascript
+import { jsx } from '@emotion/core'
+import styled, { CreateStyled } from '@emotion/styled'
+
+type Theme = {
+  color: {
+    primary: string
+    positive: string
+    negative: string
+  }
+  // ...
+}
+
+const theme: Theme = {
+	color: {
+		primary: 'hotpink',
+		positive: '#00C851',
+		negative: '#ff4444',
+	},
+	// ...
+};
+
+export { jsx, theme };
+export default styled as CreateStyled<Theme>
+```
+
+Now, you can add your theme to your project using the `ThemeProvider` HOC from
+`emotion-theming`.
+
+_App.tsx_
+```diff
+import React from 'react';
++import { ThemeProvider } from 'emotion-theming'
++import { Theme } from './styled'
+import Button from './Button';
+import logo from './logo.svg';
+import './App.css';
+
+function App() {
+  return (
++	 <ThemeProvider theme={theme}>
+		<div className="App">
+			<header className="App-header">
+				<img src={logo} className="App-logo" alt="logo" />
+				<p>
+					Edit <code>src/App.tsx</code> and save to reload.
+				</p>
+				<Button>This button is hotpink!</Button>
+				<a
+					className="App-link"
+					href="https://reactjs.org"
+					target="_blank"
+					rel="noopener noreferrer"
+				>
+					Learn React
+				</a>
+			</header>
+		</div>
++	</ThemeProvider>
+  );
+}
+
+export default App;
+```
+
+And finally, now you can use your theme in your components!
+
+_Button.tsx_
+```diff
+/** @jsx jsx */
+import styled, { jsx } from './styled'
+
+const Button = styled.button`
+-color: hotpink;
++color: ${(props) => props.theme.colors.primary};
+`
+
+export default Button;
+```
+
+## Conclusion
+
+And that's it! You are now able to build our your own theme to use within your
+React components. One thing to note is that the [babel-macro](https://emotion.sh/docs/babel-macros) isn't working yet with theming, but updates have been made and are coming in emotion version 11.
+
+
+Happy Coding!
