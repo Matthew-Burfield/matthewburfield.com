@@ -28,7 +28,7 @@ module.exports = {
       },
       {
         name: `github`,
-        url: `https://github.com/matthewburfield`,
+        url: `https://github.com/matthew-burfield`,
       },
     ],
   },

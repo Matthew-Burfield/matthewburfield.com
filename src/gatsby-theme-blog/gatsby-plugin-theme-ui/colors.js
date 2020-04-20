@@ -7,19 +7,27 @@ import defaultThemeColors from "gatsby-theme-blog/src/gatsby-plugin-theme-ui/col
  * to go from default purple to a blue theme
  */
 
-// const darkBlue = `#007acc`
-// const lightBlue = `#66E0FF`
-// const blueGray = `#282c35`
+const goldenSand = "#f1da76"
+const porsche = "#e8a757"
+const rawSienna = "#e37f42"
+const cumin = "#914526"
+const quincy = "#634131"
 
 export default merge(defaultThemeColors, {
   // text: blueGray,
-  // primary: darkBlue,
-  // heading: blueGray,
-  // modes: {
-  //   dark: {
-  //     background: blueGray,
-  //     primary: lightBlue,
-  //     highlight: lightBlue,
-  //   },
-  // },
+  primary: rawSienna,
+  highlight: goldenSand,
+  modes: {
+    dark: {
+      // background: blueGray,
+      primary: rawSienna,
+      highlight: porsche,
+    },
+  },
+  prism: {
+    keyword: porsche,
+    tag: goldenSand,
+    diffAdd: "green",
+    diffDelete: "red",
+  },
 })

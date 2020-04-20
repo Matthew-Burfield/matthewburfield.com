@@ -70,34 +70,35 @@ export default Button;
 
 _App.tsx_
 ```diff
-import React from 'react';
-+import Button from './Button';
-import logo from './logo.svg';
-import './App.css';
+/** App.tsx */
+  import React from 'react';
++ import Button from './Button';
+  import logo from './logo.svg';
+  import './App.css';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-+	<Button>This button is hotpink!</Button>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
-}
-
-export default App;
+  function App() {
+    return (
+      <div className="App">
+        <header className="App-header">
+          <img src={logo} className="App-logo" alt="logo" />
+          <p>
+            Edit <code>src/App.tsx</code> and save to reload.
+          </p>
++	      <Button>This button is hotpink!</Button>
+          <a
+            className="App-link"
+            href="https://reactjs.org"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Learn React
+          </a>
+        </header>
+      </div>
+    );
+  }
+  
+  export default App;
 ```
 
 For more TypeScript related information for using emotion with TypeScript, I'd
@@ -153,53 +154,54 @@ Now, you can add your theme to your project using the `ThemeProvider` HOC from
 
 _App.tsx_
 ```diff
-import React from 'react';
-+import { ThemeProvider } from 'emotion-theming'
-+import { Theme } from './styled'
-import Button from './Button';
-import logo from './logo.svg';
-import './App.css';
+/** App.tsx */
+  import React from 'react';
++ import { ThemeProvider } from 'emotion-theming'
++ import { Theme } from './styled'
+  import Button from './Button';
+  import logo from './logo.svg';
+  import './App.css';
 
-function App() {
-  return (
-+	 <ThemeProvider theme={theme}>
-		<div className="App">
-			<header className="App-header">
-				<img src={logo} className="App-logo" alt="logo" />
-				<p>
-					Edit <code>src/App.tsx</code> and save to reload.
-				</p>
-				<Button>This button is hotpink!</Button>
-				<a
-					className="App-link"
-					href="https://reactjs.org"
-					target="_blank"
-					rel="noopener noreferrer"
-				>
-					Learn React
-				</a>
-			</header>
-		</div>
-+	</ThemeProvider>
-  );
-}
+  function App() {
+    return (
++	   <ThemeProvider theme={theme}>
+		  <div className="App">
+			  <header className="App-header">
+				  <img src={logo} className="App-logo" alt="logo" />
+				  <p>
+					  Edit <code>src/App.tsx</code> and save to reload.
+				  </p>
+				  <Button>This button is hotpink!</Button>
+				  <a
+					  className="App-link"
+					  href="https://reactjs.org"
+					  target="_blank"
+					  rel="noopener noreferrer"
+				  >
+					  Learn React
+				  </a>
+			  </header>
+		  </div>
++	  </ThemeProvider>
+    );
+  }
 
-export default App;
+  export default App;
 ```
 
 And finally, now you can use your theme in your components!
 
 _Button.tsx_
 ```diff
-/** @jsx jsx */
-import styled, { jsx } from './styled'
+  /** @jsx jsx */
+  import styled, { jsx } from './styled'
 
-const Button = styled.button`
--color: hotpink;
-+color: ${(props) => props.theme.colors.primary};
+  const Button = styled.button`
+- color: hotpink;
++ color: ${(props) => props.theme.colors.primary};
 `
 
-export default Button;
+  export default Button;
 ```
 
 ## Conclusion
