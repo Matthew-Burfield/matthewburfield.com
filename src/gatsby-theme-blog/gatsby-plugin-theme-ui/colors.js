@@ -10,8 +10,8 @@ import defaultThemeColors from "gatsby-theme-blog/src/gatsby-plugin-theme-ui/col
 const goldenSand = "#f1da76"
 const porsche = "#e8a757"
 const rawSienna = "#e37f42"
-const cumin = "#914526"
-const quincy = "#634131"
+// const cumin = "#914526"
+// const quincy = "#634131"
 
 export default merge(defaultThemeColors, {
   // text: blueGray,

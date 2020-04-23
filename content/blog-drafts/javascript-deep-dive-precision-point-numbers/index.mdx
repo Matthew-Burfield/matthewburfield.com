@@ -1,14 +1,137 @@
 ---
-title: Title
-date: 2020-04-13
+title: JavaScript deep dive - Precision point numbers
+slug: javascript-deep-dive-precision-point-numbers
+date: 2020-04-23
 excerpt: Description
-tags: [list, of, tags]
+tags: [Programming, JavaScript]
 ---
 
-![sunrise](./artem-sapegin-8c6eS43iq1o-unsplash.jpg)
-Photo by Artem Sapegin on Unsplash
+![sunrise](./federico-respini-sYffw0LNr7s-unsplash.jpg)
+Photo by Federico Respini on Unsplash
 
 ## Introduction
+
+```javascript
+> const num = 0.1 + 0.2
+> console.log(num) // 0.30000000000000004
+```
+
+Have you ever tried to run the above snippet? Is the answer what you expected?
+If not, then you might find this post interesting. We're going to cover floating
+point numbers; what they mean, why computer systems use them and how they relate
+back to programming languages, and in particular - JavaScript.
+
+#### The problem
+
+The website [floating-point-gui.de](https://floating-point-gui.de/formats/fp/)
+covers why floating-point numbers are needed in computers really well. It says
+that since computer memory is limited, computers cannot store numbers with
+infinite precision. But how much accuracy is needed? And _where_ is it
+needed? How many integer digits _(before the decimal place)_ and how many
+fraction digits _(after the decimal place)_?.
+
+Consider these three use cases:
+
+- A civil engineer is building a highway and measuring the length of a road. To the
+engineer, it doesn't matter if the road is 10 meters wide, or 10.0001 meters
+wide, since the measurements are probably not that accurate in the first
+place.
+- A electrical engineer is designing a microchip, where 0.0001 meters (or 0.1
+millimeters) is a huge difference. But then the electrical engineer will never
+have to deal with distances larger than 0.1 meters.
+- A physicist needs to use the speed of light (299,792,458 m/s) and Newton's
+gravitational constant (about 0.0000000000667) together in the same
+calculation.
+
+The civil engineer, the electrical engineer and the physicist each have wildly
+different needs when it comes to precision for the numbers they need to store.
+But how do you store all these numbers in computer memory efficiently? Having
+a fixed number of integer (before the decimal place) and fractional digits
+(after the decimal place) is not at all efficient because of the orders of
+magnitude of difference in the numbers that are required for each of the
+example use cases listed above.
+
+One of the solutions to this problem, is _the floating point_.
+
+#### A brief history
+
+Floating point arithmetic, and therefore the issue of `0.1 + 0.2 !== 0.3`, is
+not a JavaScript problem. In fact, floating point arithmetic has been around
+since the early days of computers, as early as 1938 (JavaScript wasn't created
+until 1995). In 1985, The (IEEE)[https://www.ieee.org/] standardised floating
+point arithmetic with IEEE 754 which addressed many problems found because of
+the diverse set of implementations across different hardware and software
+products that made them difficult to use reliable and portably.
+
+#### Floating point numbers
+
+It may not surprise you that computers prefer to read numbers in binary format
+instead of the decimal format that we humans prefer to read.
+
+In the decimal system, we have numbers that go on forever. For example, how
+would your refer to 1/3 as a decimal?
+
+> 0.3333333333333333333333333333333333333333333333333333333333333333...
+
+It it just goes on forever right? Knowing that there are numbers in the decimal
+system that go on forever, it might not surprise you to learn that there are
+also numbers in the binary system that go on forever. `0.1` is one such number.
+How do you represent `0.1` in binary you may ask?:
+
+> 0.00011001100110011001100110011001100110011001100110011001100110011...
+
+Going back to our earlier example with the civil engineer, electrical
+engineer and the physicist, how precise do we need to be?
+
+To take a quick tangent, in science when we are dealing with either really big
+numbers, or really small numbers, it is common to represent those numbers in
+scientific notation.
+
+For example, planck's constant - which relates the engergy carried by a photon,
+to the photon's frequency, is a _really really_ small number. It is:
+
+> 0.00000000000000000000000006626068
+
+Which, in scientific notation we can simply write as:
+
+> 6.626068 x 10<sup>-34</sup>
+
+Similarly, Avogadro's constant - which relates the amount of substance in a
+given sample (measured in moles), to the number of particles in that sample, and
+it is a _really really_ big number. It is:
+
+> 602300000000000000000000
+
+Which, in scientific notation we can simple write as:
+
+> 6.023 x 10<sup>23</sup>
+
+Now, to cycle back to floating point numbers, the above scientific notation is a
+system we can use to represent numbers from the decimal system, but scientific
+notation can also be used to represent numbers from the binary system - the
+binary numbers that the computers can process.
+
+Floating point numbers are the binary numbers that are written in the scientific
+notation format and is was the IEEE 754 standard that standardised how those
+floating point numbers would be stored in memory.
+
+#### IEEE 754
+
+The IEEE 754 is the standard for formatting floating point numbers and storing
+them in computer memory. It is the same standard the JavaScript and many other
+programming languages follow.
+
+
+- Design decisions
+- IEEE754
+	- most widely used
+- Reasons for floating point precision
+- Languages that use this approach
+	- PHP, Javam C, Perl, Ruby
+- Alternatives in other languages
+- Speed vs accuracy
+
+
 
 ## Conclusion
 
