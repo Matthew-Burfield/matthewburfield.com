@@ -13,6 +13,10 @@ Photo by Sadman Sakib on Unsplash
 
 In my option, the best resource there is for coercion in JavaScript is the "You don't know JS (YDKJS)" e-book series by Kyle Simpson. At the time of writing, Kyle is in the process of writing the second edition and hasn't yet updated the chapter on "Types & Grammer", where you'll find all the pages on coercion. However you can still view the [the same chapter in the first edition](https://github.com/getify/You-Dont-Know-JS/blob/1st-ed/types%20%26%20grammar/ch4.md). It's an excellent resource and goes in depth on hor coercon works in JavaScript. This blog post is basically going to be a re-hashing of that artcle as I attempt to put it into my own words and to help with my own understanding.
 
+Given the above, I'd like to start this blog post with a direct quote from the YDKJS series, where Kyle introduces coercion. I think it applies really well to why I decided to write this deep dive into JavaScript blog series in the first place.
+
+> In the same overall spirit of this series, rather than running away from coercion because everyone else does, or because you get bitten by some quirk, I think you should run toward that which you don’t understand and seek to get it more fully.
+
 With that out of the way, we can get started.
 
 ## Coercion
@@ -64,10 +68,10 @@ Boolean("") // false
 
 But the language already knows that this is what we intend to do because of "the set of rules imposed by the programming language", therefore it _implicitly_ changes the data type for us. **That's coercion**.
 
+As I said above, each programming language will have it's own set of rules that it imposes for coersion. Languages with strong typing (like Java and Objective-C) typically do little implicit conversions, while languages with weak typing (like JavaScript) perform many implicit conversions between data types. Coersion can also happen at compilation time, or run time, depending on the coercion.
+
+Up until now, I've tried to speak quite generally, because all of the above applies to many programming languages, not just JavaScript. However each programming language will have it's own set of rules that it imposes for coercion, and since this is supposed to be a deep dive into JavaScript coercion, I'll be focusing on only JavaScript moving forward.
+
 Quote from YDKJS
-
-> In the same overall spirit of this series, rather than running away from coercion because everyone else does, or because you get bitten by some quirk, I think you should run toward that which you don’t understand and seek to get it more fully.
-
-> Converting a value from one type to another is often called “type casting,” when done explicitly, and “coercion” when done implicitly (forced by the rules of how a value is used).
 
 Happy Coding!
