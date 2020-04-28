@@ -1,7 +1,7 @@
 ---
 title: JavaScript deep dive - Coercion
 slug: javascript-deep-dive-coercion
-date: 2020-04-13
+date: 2020-04-28
 excerpt: A deep dive into what coercion is and how it works in JavaScript
 tags: [Programming, JavaScript, Coercion]
 ---
@@ -11,7 +11,7 @@ Photo by Sadman Sakib on Unsplash
 
 ## Introduction
 
-In my option, the best resource there is for coercion in JavaScript is the "You don't know JS (YDKJS)" e-book series by Kyle Simpson. At the time of writing, Kyle is in the process of writing the second edition and hasn't yet updated the chapter on "Types & Grammer", where you'll find all the pages on coercion. However you can still view the [the same chapter in the first edition](https://github.com/getify/You-Dont-Know-JS/blob/1st-ed/types%20%26%20grammar/ch4.md). It's an excellent resource and goes in depth on hor coercon works in JavaScript. This blog post is basically going to be a re-hashing of that artcle as I attempt to put it into my own words and to help with my own understanding.
+In my option, the best resource there is for coercion in JavaScript is the "You don't know JS" (YDKJS) e-book series by Kyle Simpson. At the time of writing, Kyle is in the process of writing the second edition and hasn't yet updated the chapter on "Types & Grammer" where you'll find all the pages on coercion. However you can still view the [the same chapter in the first edition](https://github.com/getify/You-Dont-Know-JS/blob/1st-ed/types%20%26%20grammar/ch4.md). It's an excellent resource and goes super in depth on how coercon works in JavaScript. This blog post is basically going to be a re-hashing of that artcle as I attempt to put it into my own words and to help with my own understanding.
 
 Given the above, I'd like to start this blog post with a direct quote from the YDKJS series, where Kyle introduces coercion. I think it applies really well to why I decided to write this deep dive into JavaScript blog series in the first place.
 
@@ -37,11 +37,11 @@ const num = Number("42") // 42 (type casting a string to a number)
 const str = String([1, 2, 3]) // 1, 2, 3 (type casting an array to a string)
 ```
 
-In all the above cases, we say they are type casting, because each data type is converted to another type _explicitly_. We say _explicit_ because the `String(..)` function and the `Number(..)` function make it super obvious that the data types are changing to a `number` and `string` respectively.
+In all the above cases, we say they are type casting, because each data type is converted to another type _explicitly_. We say _explicit_ because the `Number(..)` function and the `String(..)` function make it super obvious that the data types are changing to a `number` and `string` respectively.
 
-By contrast, **Corecion**, is changing a variable from one data type to another _implicitly_. Here we say _implicit_ to mean that it is not super obvious that the data type has changed, but we are instead using the set of rules imposed by the programming langauge, in how different data types are represented in different situations.
+By contrast, **Corecion**, is changing a variable from one data type to another _implicitly_. Here we say _implicit_ to mean that it is not super obvious that the data type has changed, but we are instead using the set of rules imposed by the programming langauge to change how different data types are represented in different situations.
 
-We're going to deep dive into what I mean by "the set of rules imposed by the programming language" later in the article, but for now, let's look at a couple of common examples of coercion in JavaScript. That is, _implicit_ conversion of data types.
+We'll deep dive into what I mean by _"the set of rules imposed by the programming language"_ later in the article, but for now, let's look at a couple of common examples of coercion in JavaScript. That is, an _implicit_ conversion of data types.
 
 ```javascript
 const string = "This is a string"
@@ -57,7 +57,7 @@ if (string) {
 }
 ```
 
-You may have used something similar to the above in your code. It is a common pattern to evaluate if a string exists and has a value, but what's actually happening here? An `if block` cannot actually evaluate a string, it can only evaluation a boolean or an expression that returns a boolean... what's happening is that the language is coercing the `string` to a `boolean`.
+You may have used something similar to the above in your code. It is a common pattern to evaluate if a string exists and has a value; but what's actually happening here? An `if block` cannot evaluate a `string`, it can only evaluate a `boolean` or an expression that returns a `boolean`... what's happening is that the language is coercing the `string` to a `boolean`.
 
 To put in another way, if we were to do the above coersions _explicitly_ instead, it would look like this:
 
@@ -66,7 +66,7 @@ Boolean("This is a string") // true
 Boolean("") // false
 ```
 
-But the language already knows that this is what we intend to do because of "the set of rules imposed by the programming language", therefore it _implicitly_ changes the data type for us. **That's coercion**.
+The language already knows that the date type conversion of `string` to `boolean` is what we intend to do because of the set of rules imposed by the programming language, therefore it _implicitly_ changes the data type for us. **That's coercion**.
 
 As I said above, each programming language will have it's own set of rules that it imposes for coersion. Languages with strong typing (like Java and Objective-C) typically do little implicit conversions, while languages with weak typing (like JavaScript) perform many implicit conversions between data types. Coersion can also happen at compilation time, or run time, depending on the coercion.
 
