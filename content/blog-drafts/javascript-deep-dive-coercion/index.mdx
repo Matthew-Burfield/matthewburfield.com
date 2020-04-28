@@ -42,16 +42,27 @@ We're going to deep dive into what I mean by "the set of rules imposed by the pr
 ```javascript
 const string = "This is a string"
 if (string) {
-  // The code will enter here because string has a value and is therefore "coerced" to `true`.
+  // The code will enter here because string has a value and is therefore
+  // "coerced" to `true`.
 }
 
 const newString = ""
 if (string) {
-  // The code will not enter here because newString is an empty string value, and therefore will be "coerced" to `false`.
+  // The code will not enter here because newString is an empty string value,
+  // and therefore will be "coerced" to `false`.
 }
 ```
 
-You may have used something similar to the above in your code. It is a common pattern
+You may have used something similar to the above in your code. It is a common pattern to evaluate if a string exists and has a value, but what's actually happening here? An `if block` cannot actually evaluate a string, it can only evaluation a boolean or an expression that returns a boolean... what's happening is that the language is coercing the `string` to a `boolean`.
+
+To put in another way, if we were to do the above coersions _explicitly_ instead, it would look like this:
+
+```javascript
+Boolean("This is a string") // true
+Boolean("") // false
+```
+
+But the language already knows that this is what we intend to do because of "the set of rules imposed by the programming language", therefore it _implicitly_ changes the data type for us. **That's coercion**.
 
 Quote from YDKJS
 
