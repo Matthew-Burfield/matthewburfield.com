@@ -94,11 +94,11 @@ The internal conversions are defined in the ECMAScript specification ([more spec
 
 > These operations are not part of the ECMAScript language; they are defined here to solely to aid the specification of the semantics of the ECMAScript language.
 
-We'll cover the most important abstract methods for converting data types; `ToString`, `ToNumber` and `ToBoolean`. These three are the most important because all coercion in JavaScript will end up as one of these three primitive types. (You can't coerce a type into an `Object` or `Function` etc).
+We'll cover the most important abstract methods for converting data types; `ToString`, `ToNumber` and `ToBoolean`. These three are the most important because all coercion in JavaScript will end up as one of these three primitive types. (You can't coerce a `number` type into an `Object` or `Function` etc).
 
 ### ToString
 
-Whenever any non-string value is coerced into a string, the underlying conversion is defined by the `ToString` abstraction operation. Here is a table representing how common primitive values will be coerced to a `string`.
+Whenever any non-string value is converted into a string, the underlying conversion is defined by the `ToString` abstraction operation. Here is a table representing how common primitive values will be coerced to a `string`.
 
 | Argument Type | Result      |
 | ------------- | ----------- |
@@ -119,7 +119,7 @@ As well as the above, all numbers will pretty much stringify to how one might ex
 | -1                            | "-1"                   |
 | 1,000,000,000,000,000,000,000 | "1e+21"                |
 
-Note that for _really really_ big or _really really_ small numbers, a conversion to `string` will result in the exponent form of the number.
+Note that for _really really_ big or _really really_ small numbers, a conversion to `string` will result in the exponent form of the number. (i.e. `"1e+21"`)
 
 `Objects`, unless you specify your own, will use the default `toString()` method on the `Object prototype` which will return the internal _[[Class]]_. For example "[object Object]"
 
@@ -141,10 +141,8 @@ If the `function` is a native JavaScript function, the function will get convert
 If the function was created by the `Function` constructor, the function will get converted to:
 
 ```javascript
-functionName anonymous(
-) {
-
-}
+const functionName = new Function()
+String(functionName) // // "functionName anonymous(↵) {↵↵}
 ```
 
 Otherwise, functions will get converted to a text representation of the function:
