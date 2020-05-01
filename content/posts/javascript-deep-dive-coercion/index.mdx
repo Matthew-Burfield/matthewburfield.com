@@ -156,7 +156,7 @@ String(functionName) // "(a, b) => {↵  return a + b;↵}"
 
 ### ToBoolean
 
-You may have come across the terms "falsy values" and "truthy values". When we refer to these terms, what we actually mean is "when converted to a Boolean value, will the result be `true` or `false`".
+You may have come across the terms "falsy values" and "truthy values". When we refer to these terms, what we actually mean is "when converted to a `Boolean` value, will the result be `true` or `false`".
 
 There is a very small list of values that will convert to `false`, and so it is much easier to just remember the list of "falsy" values. By definition, every other value will convert to `true`. The "falsy" values are:
 
@@ -176,9 +176,13 @@ const b = "0"
 const c = "''"
 ```
 
-What do you think the results will be if we were to convert the above variables into a `boolean`? That is, are they "truthy" or "falsy". They are all `strings`, and because none of them are the empty string value (""), they are all truthy!
+What do you think the results will be if we were to convert the above variables into a `boolean`? That is, are they "truthy" or "falsy"?
 
-One last point about `Boolean` coercion that Kyle Simpson covers in YDKJS and I think is important. JavaScript has actual keywords for `true` and `false`, and they behave as you'd expect for `boolean` values. It's a common misconception that the values `1` and `0` are identical to `true` and `false` respectively. While that may be true in other languages, in JavaScript the numbers are numbers, and the booleans are booleans. You can coerce `1` to `true` (and vice versa), or `0` to `false` (and vice versa). But they are not the same.
+They are all `strings`, and because none of them are the empty string value (""), they are all truthy!
+
+There's one last point about `Boolean` coercion that Kyle Simpson covers in YDKJS and I think is important.
+
+JavaScript has actual keywords for `true` and `false`, and they behave as you'd expect for `boolean` values. It's a common misconception that the values `1` and `0` are identical to `true` and `false` respectively. While that may be true in other languages, in JavaScript the numbers are numbers, and the booleans are booleans. You can coerce `1` to `true` (and vice versa), or `0` to `false` (and vice versa). But they are not the same.
 
 ### ToNumber
 
@@ -204,7 +208,7 @@ Number("a string") // NaN
 
 JavaScript will also trim white space in the string, if it exists, before doing the conversion.
 
-`Objects`, (including `Arrays` and `Functions`) will first be converted to their primitive value equivalent by first using another abstract operation. `Objects` will first be converted using an abstract method `ToPrimitive` ([ref](https://www.ecma-international.org/ecma-262/10.0/index.html#sec-toprimitive)) which will first convert the `Object` to a non-Object type (that is, a `string`, `number` or `boolean`), and the result of the `ToPrimitive` conversion will then be converted to a `number` according to the `ToNumber` rules above.
+`Objects`, (including `Arrays` and `Functions`) will first be converted to their primitive value equivalent by first using another abstract operation, `ToPrimitive` ([ref](https://www.ecma-international.org/ecma-262/10.0/index.html#sec-toprimitive)). `ToPrimitive` will first convert the `Object` to a non-Object type (that is, a `string`, `number` or `boolean`), and the result of the `ToPrimitive` conversion will then be converted to a `number` according to the `ToNumber` rules above.
 
 ## Conclusion
 
