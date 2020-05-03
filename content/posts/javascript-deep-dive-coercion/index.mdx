@@ -11,9 +11,9 @@ Photo by Sadman Sakib on Unsplash
 
 ## Introduction
 
-In my option, the best resource there is for learning about coercion in JavaScript is the "You don't know JS" (YDKJS) book series by Kyle Simpson. At the time of writing, Kyle is in the process of writing the second edition and hasn't yet updated the chapter on "Types & Grammar" where you'll find all the pages on coercion. However you can still view the [the same chapter in the first edition](https://github.com/getify/You-Dont-Know-JS/blob/1st-ed/types%20%26%20grammar/ch4.md). It's an excellent resource and goes super in depth on how coercion works in JavaScript. This blog post is basically going to be a re-hashing of that chapter but put into my own words to help with my own understanding.
+In my option, the best resource there is for learning about coercion in JavaScript is the "You don't know JS" (YDKJS) book series by Kyle Simpson. At the time of writing, Kyle is in the process of writing the second edition and hasn't yet updated the chapter on "Types & Grammar" where you'll find all the pages on coercion. However you can still view [the same chapter in the first edition](https://github.com/getify/You-Dont-Know-JS/blob/1st-ed/types%20%26%20grammar/ch4.md). It's an excellent resource and goes super in depth on how coercion works in JavaScript. This blog post is basically going to be a re-hashing of that chapter but put into my own words to help with my own understanding.
 
-Given the above, I'd like to start this blog post with a direct quote from the YDKJS series where Kyle introduces coercion. I think it applies really well to why I decided to write this deep dive into JavaScript blog series in the first place.
+Given the above, I'd like to start this blog post with a direct quote from the YDKJS series where Kyle introduces coercion. I think it applies really well to why I decided to write this Deep Dive Into JavaScript blog series in the first place.
 
 > In the same overall spirit of this series, rather than running away from coercion because everyone else does, or because you get bitten by some quirk, I think you should run toward that which you don’t understand and seek to get it more fully.
 
@@ -60,7 +60,7 @@ if (string) {
 
 You may have used something similar to the above in your code. It is a common pattern to evaluate if a string exists and has a value, but what's actually happening here?
 
-An `if block` cannot evaluate a `string`, it can only evaluate a `boolean` or an expression that returns a `boolean`... what's happening is that the language is coercing the `string` to a `boolean`.
+An `if block` cannot evaluate a `string`, it can only evaluate a `boolean` or an expression that returns a `boolean`. What's happening is that the language is coercing the `string` to a `boolean`.
 
 To put in another way, if we were to do the above coercions _explicitly_ instead, it would look like this:
 
@@ -78,7 +78,7 @@ if (newStringHasValue) {
 }
 ```
 
-However we don't need to do this _explicit_ type casting, because the language already knows what we are trying to do in this situation. When we evaluate a `string` directly in an `if block`, it knows that a coercion of `string` to `boolean` is what we intend to do because of the set of rules imposed by the programming language. Therefore it _implicitly_ changes the data type for us. **That's coercion**.
+However we don't need to do the _explicit_ type casting, because the language already knows what we are trying to do in this situation. When we evaluate a `string` directly in an `if block`, it knows that a coercion of `string` to `boolean` is what we intend to do because of the set of rules imposed by the programming language. Therefore it _implicitly_ changes the data type for us. **That's coercion**.
 
 As I said above, each programming language will have it's own set of rules that it imposes for coercion. Languages with strong typing (like Java and Objective-C) typically do little implicit conversions, while languages with weak typing (like JavaScript) perform many implicit conversions between data types. Coercion can also happen at compilation time, or run time, depending on the coercion.
 
@@ -86,13 +86,19 @@ Up until now, I've tried to speak quite generally, because all of the above appl
 
 ## Abstract Value Operations
 
-There are certain operations that JavaScript will do at runtime when it needs to coerce data types. You can't trigger these operations directly as they are handled by the language, however the ECMAScript specification ([more specifically section 9](https://www.ecma-international.org/ecma-262/5.1/#sec-9)) covers some abstract operations that, while not explicitly part of the language, are defined to aid the specification of the semantics of the language.
+Before we can deep dive into coercion, we need to first understand how JavaScript will convert types from one type to another. These same rules will apply to both _explicit_ type castings, and _implicit_ coercions.
 
-We'll cover the most important ones `ToString`, `ToNumber` and `ToBoolean`. These three are the most important because all coercion in JavaScript will end up as one of these three primitive types. (You can't coerce a type into an `Object` or `Function` etc).
+In JavaScript, you can only convert values to primitive values. That means, if you are converting one type to another, the result can only be either a `string`, a `number`, or a `boolean`. These conversions are internal to JavaScript and aren't called directly, although there are functions and methods that trigger them (which we'll cover later).
+
+The internal conversions are defined in the ECMAScript specification ([more specifically section 7](https://www.ecma-international.org/ecma-262/10.0/index.html#sec-abstract-operations)) which covers Abstract Operations. The ECMAScript specification says:
+
+> These operations are not part of the ECMAScript language; they are defined here to solely to aid the specification of the semantics of the ECMAScript language.
+
+We'll cover the most important abstract methods for converting data types; `ToString`, `ToNumber` and `ToBoolean`. These three are the most important because all coercion in JavaScript will end up as one of these three primitive types. (You can't coerce a `number` type into an `Object` or `Function` etc).
 
 ### ToString
 
-Whenever any non-string value is coerced into a string, the underlying conversion is defined by the `ToString` abstraction operation. Here is a table representing how common primitive values will be coerced to a `string`.
+Whenever any non-string value is converted into a string, the underlying conversion is defined by the `ToString` abstraction operation. Here is a table representing how common primitive values will be coerced to a `string`.
 
 | Argument Type | Result      |
 | ------------- | ----------- |
@@ -101,7 +107,7 @@ Whenever any non-string value is coerced into a string, the underlying conversio
 | `true`        | "true"      |
 | `false`       | "false"     |
 
-As well as the above, all numbers will pretty much stringify to how one might expect
+As well as the above, all numbers will pretty much stringify to how one might expect:
 
 | Number value                  | String coercion result |
 | ----------------------------- | ---------------------- |
@@ -113,24 +119,46 @@ As well as the above, all numbers will pretty much stringify to how one might ex
 | -1                            | "-1"                   |
 | 1,000,000,000,000,000,000,000 | "1e+21"                |
 
-Note that for _really really_ big or _really really_ small numbers, a coercion to `string` will result in the exponent form of the number.
+Note that for _really really_ big or _really really_ small numbers, a conversion to `string` will result in the exponent form of the number. (i.e. `"1e+21"`)
 
-`Objects`, unless you specify your own, will use the default `toString()` method on the `Object prototype` and will return the internal _[[Class]]_. For example "[object Object]"
+`Objects`, unless you specify your own, will use the default `toString()` method on the `Object prototype` which will return the internal _[[Class]]_. For example "[object Object]"
 
-`Arrays` have a default `toString()` method that will coerce each individual element in the array separately, and then join each element with ",". For example:
+`Arrays` have a default `toString()` method that will convert each individual element in the array separately to a `string`, and then join each element with ",". For example:
 
 ```javascript
 const arr = [1, 2, 3];
 arr.toString[]; // "1,2,3"
 ```
 
-// TODO: Functions
+`Functions` also have a default `toString()` method.
+
+If the `function` is a native JavaScript function, the function will get converted to:
+
+```javascript
+"function () {\n    [native code]\n}"
+```
+
+If the function was created by the `Function` constructor, the function will get converted to:
+
+```javascript
+const functionName = new Function()
+String(functionName) // // "functionName anonymous(↵) {↵↵}
+```
+
+Otherwise, functions will get converted to a text representation of the function:
+
+```javascript
+const functionName = (a, b) => {
+  return a + b
+}
+String(functionName) // "(a, b) => {↵  return a + b;↵}"
+```
 
 ### ToBoolean
 
-You may have come across the terms "falsy values" and "truthy values". When we refer to these terms, what we actually mean is "when coerced to a Boolean value, will the result be `true` or `false`".
+You may have come across the terms "falsy values" and "truthy values". When we refer to these terms, what we actually mean is "when converted to a `Boolean` value, will the result be `true` or `false`".
 
-There is a very small list of values that will coerce to `false`, and so it is much easier to just remember the list of "falsy" values. By definition, every other value will coerce to `true`. The "falsy" values are:
+There is a very small list of values that will convert to `false`, and so it is much easier to just remember the list of "falsy" values. By definition, every other value will convert to `true`. The "falsy" values are:
 
 | Argument type        | ToBoolean conversion |
 | -------------------- | -------------------- |
@@ -140,7 +168,7 @@ There is a very small list of values that will coerce to `false`, and so it is m
 | "" (an empty string) | `false`              |
 | `false`              | `false`              |
 
-If the value is not in the table above, then it will coerce to `true`. Consider the following variables:
+If the value is not in the table above, then it will convert to `true`. Consider the following variables:
 
 ```javascript
 const a = "false"
@@ -148,10 +176,44 @@ const b = "0"
 const c = "''"
 ```
 
-What do you think the results will be if we were to coerce the above variables into a `boolean`? That is, are they "truthy" or "falsy". They are all `strings`, and because none of them are the empty string value (""), they are all truthy!
+What do you think the results will be if we were to convert the above variables into a `boolean`? That is, are they "truthy" or "falsy"?
 
-One last point about `Boolean` coercion that Kyle Simpson covers in YDKJS is that JavaScript has actual keywords for `true` and `false`, and they behave as you'd expect for `boolean` values. It's a common misconception that the values `1` and `0` are identical to `true` and `false` respectively. While that may be true in other languages, in JavaScript, the numbers are numbers, and the booleans are booleans. You can coerce `1` to `true` (and vice versa), or `0` to `false` (and vice versa). But they are not the same.
+They are all `strings`, and because none of them are the empty string value (""), they are all truthy!
+
+There's one last point about `Boolean` coercion that Kyle Simpson covers in YDKJS and I think is important.
+
+JavaScript has actual keywords for `true` and `false`, and they behave as you'd expect for `boolean` values. It's a common misconception that the values `1` and `0` are identical to `true` and `false` respectively. While that may be true in other languages, in JavaScript the numbers are numbers, and the booleans are booleans. You can coerce `1` to `true` (and vice versa), or `0` to `false` (and vice versa). But they are not the same.
 
 ### ToNumber
+
+If any non-number value is used in a way that requires it to be a `number`, such as a mathematical operation, the ECMAScript specification defines the `ToNumber` abstract operation for how that conversion should behave.
+
+| Argument type | ToNumber conversion |
+| ------------- | ------------------- |
+| `undefined`   | `NaN`               |
+| `null`        | `0`                 |
+| `true`        | `1`                 |
+| `false`       | `0`                 |
+
+For converting a `string` to a `number`, it mostly works as the reverse of `number` to `string`, including the exponent form.
+
+If the `string` would convert to an invalid `number`, for example if there are letters of the alphabet in the `string` that is not the `e` of an exponent form, then the result will be `NaN`.
+
+```javascript
+Number("1") // 1
+Number("1.1") // 1.1
+Number("1e17") // 100000000000000000
+Number("a string") // NaN
+```
+
+JavaScript will also trim white space in the string, if it exists, before doing the conversion.
+
+`Objects`, (including `Arrays` and `Functions`) will first be converted to their primitive value equivalent by first using another abstract operation, `ToPrimitive` ([ref](https://www.ecma-international.org/ecma-262/10.0/index.html#sec-toprimitive)). `ToPrimitive` will first convert the `Object` to a non-Object type (that is, a `string`, `number` or `boolean`), and the result of the `ToPrimitive` conversion will then be converted to a `number` according to the `ToNumber` rules above.
+
+## Conclusion
+
+We've covered a lot so far in terms of coercion in programming, and specifically in JavaScript. But I'm not done yet! There is still so much more I want to learn about coercion in terms of application - how can I apply coercion in my code and what are the safe and meaningful ways in which I can use it to make my code better?
+
+I'm going to split out this topic into two parts (a series within a series!?) so in part two, I can go into more detail about how to apply the coercion theory that we just learnt in real world situations!
 
 Happy Coding!
