@@ -1,7 +1,7 @@
 ---
 title: JavaScript deep dive - Coercion (Part 2)
 slug: javascript-deep-dive-coercion-part-2
-date: 2020-05-04
+date: 2020-05-09
 excerpt: A deep dive into what coercion is and how it works in JavaScript
 tags: [Programming, JavaScript, Coercion]
 ---
@@ -16,6 +16,25 @@ This is the second part of a two part series where we're doing a deep dive into 
 In similar style to part one, I feel like I should give a big shout out to the book series "You don't know JS" (YDKJS) by Kyle Simpson. If you really want to deep dive into JavaScript I highly suggest you give it a read. He has a chapter on ["Types & Grammar"](https://github.com/getify/You-Dont-Know-JS/blob/1st-ed/types%20%26%20grammar/ch4.md) which I referenced for a lot of the content of this blog post.
 
 So, we learnt a lot about what coercion is in the first part of the series, but there's still a lot more we need to learn! Specifically, I think we need a practical guide on how we can use coercion in JavaScript _safely_, and which parts of coercion we can use to make our code easier to ready and less likely to contain bugs.
+
+Let's deep dive in to each of the common conversions we're likely to use in our code and look at common patterns developers use to coerce types.
+
+## Coercing a string --> number
+
+Number("3.14")
++"3.14"
+"3.14" - 0, "3.14" \* 1, "3.14" / 1
+
+## Coercing a number --> string
+
+String("42")
+42 + ""
+
+## Coercing a string --> boolean
+
+## Coercing a number --> boolean
+
+## Using == and === for quality
 
 Let's go.
 
