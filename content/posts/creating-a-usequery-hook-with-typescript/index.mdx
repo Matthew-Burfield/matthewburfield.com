@@ -1,0 +1,406 @@
+---
+title: Creating a useQuery hook with typescript
+date: 2020-05-13
+excerpt: A deep dive into what coercion is and how it works in JavaScript
+tags: [Programming, React]
+---
+
+![sunrise](./sergey-pesterev-tMvuB9se2uQ-unsplash.jpg)
+Photo by Sergey Pesterev on Unsplash
+
+## Introduction
+
+Well, it finally happened, just over a year and a half after React Hooks were first introduced to the world at React Conf in October 2018, I finally wrote by own react hook!
+
+It's a bit embarrassing that it's taken me this long, but we haven't updated React at work to use hooks and I've only just started building side projects again which is giving me a chance to use the latest concepts of React!
+
+Creating my own hook was surprisingly easier than I thought it would be, but keeping TypeScript happy was hard, so I wanted to share some of the things I learnt in this post.
+
+Firstly, to introduce some background, I've been creating an app using AWS amplify, which is a development platform for building secure, scalable applications on AWS infrastructure. The Amplify framework helps to abstract authentication, APIs, storage etc with it's CLI interface.
+
+I've also decided to use TypeScript for this project, and have vowed to never use `any` for anything, which has meant development is taking much longer than usual as I am forced to get up to speed with TypeScript.
+
+Using Amplify, I've creating a graphQL API and I've needed to query different things in a few different components - a perfect opportunity to create a hook to abstract that code!
+
+This is what one of my components might look like:
+
+```jsx
+import React, { useState, useEffect } from 'react';
+import { API, graphqlOperation } from "aws-amplify";
+import { getData } from "graphql/queries";
+
+const Component = ({ id }) => {
+	const [data, setData] = useState();
+
+	const fetchData = async () => {
+		try {
+			const response = await API.graphql(graphqlOperation(getData, {
+				id,
+			}));
+			setData(response.data.getData);
+		} catch (error) {
+			console.log(error);
+		}
+	}
+
+	useEffect(() => {
+		fetchData();
+	}, []);
+
+	return (
+		// Render some data
+	)
+}
+
+export default Component;
+```
+
+There's nothing too complex going on here, first we import `API` and `graphqlOperation` from Amplify which we use to query the data, then we import the `getData` query from the `graphql/queries` folder that Amplify creates for us.
+
+We use React's useEffect hook to fetch the data after the Component is mounted, and store the data in state so we can render it later.
+
+Job done right?
+
+"Woah woah woah" - says TypeScript; "Not so fast!".
+
+There are a couple of things TypeScript doesn't like with the above code.
+
+Firstly, because the `data` state is initialized in state as `undefined`, it complains when you try to set it with the `response.data.getData`.
+
+Secondly, because the `response type` returned back by Amplify from the `API.graphql` function doesn't include `getData`, TypeScript complains there too. It's sooooo tempting to use `any` here and be done with it. And I did for a while (and left a TODO there to come back and fix it up later). It wasn't until I read an [awesome article series](https://dev.to/mwarger/aws-amplify-graphql-queries-with-typescript-and-hooks-1e2) by Mat Warger that I learnt how to make TypeScript happy without using `any`.
+
+Lastly, and mostly just for completeness we'll fix the props TypeScript error.
+
+Let's first look at
+
+```typescript
+const [data, setData] = useState();
+```
+
+`useState` accepts a what TypeScript calls a "Generic" type as a parameter, where you can pass type parameters into functions using angle brackets `<>`.
+
+I can create an interface for my data object, and pass it into `useState` like follows:
+
+```typescript
+interface Data {
+  id: number;
+  title: string;
+}
+
+const [data, setData] = useState<Data | undefined>();
+```
+
+We're telling `useState` that the type we are using in state is going to be either of type `Data` which we just defined, or `undefined` (because our state starts out as `undefined` before the query returns our data and we update the state).
+
+The second case is:
+
+```typescript
+const response = await API.graphql(graphqlOperation(getData));
+setData(response.data.getData);
+```
+
+Amplify actually creates types for us in the `/src/API.ts` file, which we can use to tell TypeScript what type our `response` variable is going to be.
+
+In most cases, you can tell TypeScript what the type is after the variable like this:
+
+```typescript
+import { GetDataQuery } from '/src/API.ts';
+
+...
+
+const response: { data: GetDataQuery } = await API.graphql(
+	graphqlOperation(getData)
+);
+```
+
+However in this particular use case, that won't work. The reason is because Amplify's `API.graphql` function can return results of type `GraphQLResult` OR `Observable` since this function is reused for both.
+
+We can still tell TypeScript what type we expect to get back by using the `as` keyword.
+
+```typescript
+import { GetDataQuery } from '/src/API.ts';
+
+...
+
+const response = (await API.graphql(graphqlOperation(getData))) as {
+	data: GetDataQuery
+};
+```
+
+Now TypeScript knows that the response object will have a data property with the `GetDataQuery` property on it. Happy days.
+
+And lastly, again mostly for completeness, let's quickly look at how we specify prop types in TypeScript:
+
+```typescript
+interface Props {
+	id: number,
+}
+
+const Component: React.FC<Props> = ({ id }) => {
+	...
+}
+```
+
+With that done, we now have a fully functional component with full TypeScript support! The final result looks like this:
+
+```typescript
+import React, { useState, useEffect } from 'react';
+import { API, graphqlOperation } from "aws-amplify";
+import { getData } from "graphql/queries";
+import { GetDataQuery } from 'API';
+
+interface Data {
+	id: number;
+	title: string;
+}
+
+interface Props {
+	id: number,
+}
+
+const Component: React.FC<Props> = ({ id }) => {
+	const [data, setData] = useState<Data | undefined>();
+
+
+	const fetchData = async () => {
+		try {
+			const response = (await API.graphql(
+				graphqlOperation(getData))
+			) as {
+				data: GetDataQuery,
+			};
+			setData(response.data.getData);
+		} catch (error) {
+			console.log(error);
+		}
+	}
+
+	useEffect(() => {
+		fetchData();
+	}, []);
+
+	return (
+		// Render some data
+	)
+}
+
+export default Component;
+```
+
+## Extracting this out as a hook
+
+Because I was querying different items in a few different places, it made sense to refactor this code that fetches data so it can be reused in multiple places. This is where creating a custom hook comes into play!
+
+As you'll soon see, React hooks look really familiar, they're pretty much just normal components, but instead of rendering something, they just return values that you are storing in state. I.e. they're just regular functions!
+
+For example, our useQuery hook, will look something like this:
+
+```typescript
+import { useState, useEffect } from "react";
+import { API, graphqlOperation } from "aws-amplify";
+
+const useQuery = (query, variables) => {
+  const [data, setData] = useState();
+
+  const fetchData = async (query: string, variables: VariablesType) => {
+    try {
+      const response = await API.graphql(graphqlOperation(query, variables));
+      setData(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchData(query, variables);
+  }, [query, variables]);
+
+  return { data };
+};
+
+export default useQuery;
+```
+
+Note that I've removed all the _TypeScripty_ things for now so we can concentrate on just the hook concepts - we'll add type stuff back in a sec.
+
+We've introduced an error here, because `variables` is an object, by adding it to the `useEffect` dependency array, the `useEffect` hook will keep getting called over and over again. The reason is because `useEffect` does a strict equality check when comparing values in the dependency array to decide if it should re-render, and an object equality check (`{} === {}`) is always going to fail this test because although the two objects might look the same, they point to different locations in memory.
+
+What we _actually_ want to do is compare the properties of the object. We _could_ write a function for this, or we can use a [battle tested function](https://github.com/kentcdodds/use-deep-compare-effect) written by Kent C. Dodds. You can use it the exact same way as useEffect by using yarn to add `useDeepCompareEffect` and then importing it.
+
+Okay so now, instead of importing the `getData` query and calling it directly, we simply pass in the query as a variable to our hook. You might use this hook like this:
+
+```javascript
+import React from 'react';
+import { getData } from "graphql/queries";
+import useQuery from './useQuery';
+
+const Component = ({ id }) => {
+	const { data } = useQuery(getData, { id });
+
+	return (
+		// render the component
+	);
+};
+
+export default Component;
+```
+
+Much easier to reason about right! Again, there's nothing too complex going on here, we just made a new function called `useQuery`, passed in the query string as a parameter, along with the query variables, then store that data in state and return the data. Hooks are easy!
+
+The main thing I struggled with were the types; How does the hook know what type my query is? Or what type the return data will be?
+
+In TypeScript, we can use Generics. Generics allow us to pass types to functions, in a similar way to passing arguments to functions. In this case, we want to pass generic type arguments to our useQuery hook to give it information about what types our query and variables are.
+
+Remember when we passed in a type to `useState` to tell it what our Data type was? Yeah - we want to be able to do exactly that with our `useQuery` hook.
+
+```typescript
+import React from 'react';
+import { getData } from "graphql/queries";
+import { GetDataQuery, GetDataQueryVariables } from 'API';
+import useQuery from './useQuery';
+
+const Component = ({ id }) => {
+	const { data } = useQuery<GetDataQuery, GetDataQueryVariables>(
+		getData, { id },
+	)
+
+	return (
+		// render the component
+	);
+};
+
+export default Component;
+```
+
+And we can accept these type parameters into our `useQuery` hook as follows:
+
+```javascript
+import { useState } from "react";
+import { API, graphqlOperation } from "aws-amplify";
+import useDeepCompareEffect from "use-deep-compare-effect";
+
+const useQuery = <ResultType extends {}, VariablesType extends {} = {}>(
+  query,
+  variables
+) => {
+  const [data, setData] = useState();
+
+  const fetchData = async (query, variables) => {
+    try {
+      const response = await API.graphql(graphqlOperation(query, variables));
+      setData(response.data[key]);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useDeepCompareEffect(() => {
+    fetchData(query, variables);
+  }, [query, variables]);
+
+  return { data };
+};
+
+export default useQuery;
+```
+
+Now our `useQuery` hook can use the `ResultType` type and the `VariablesType` type that we pass in to the hook. The ResultType will be the type that we expect the query to return, and the `VariablesType`, is the type that the variables object will be that we pass into the query. The `VariablesType` is optional, because we might not always need to pass in variables to our queries, so we default it to an empty object if it's not specified.
+
+Cool, let's now fill out the rest of the types in our `useQuery` hook using the generic types that we now have access to!
+
+```typescript
+import { useState } from "react";
+import { API, graphqlOperation } from "aws-amplify";
+import useDeepCompareEffect from "use-deep-compare-effect";
+
+const useQuery = <ResultType extends {}, VariablesType extends {} = {}>(
+  query: string,
+  variables?: VariablesType
+) => {
+  const [data, setData] = useState({} as ResultType);
+
+  const fetchData = async (query: string, variables?: VariablesType) => {
+    try {
+      const response = (await API.graphql(
+        graphqlOperation(query, variables)
+      )) as {
+        data: ResultType;
+      };
+      setData(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useDeepCompareEffect(() => {
+    fetchData(query, variables);
+  }, [query, variables]);
+
+  return { data };
+};
+
+export default useQuery;
+```
+
+Our hook is looking great! But there are a couple of additional things to make this hook more convenient and reusable. Let's store some extra state to
+
+1. let our components using this hook know if the query is loading or not;
+2. let our components know if the query returned an error; and
+3. return a refetch method, so our components can refetch the data whenever it wants.
+
+We can also use this moment to also add a return type for our `useQuery` hook for good TypeScript support. Note that we can use Generics again to pass in the result type to our return type (UseQuery type).
+
+```typescript
+import { useState } from "react";
+import { API, graphqlOperation } from "aws-amplify";
+import useDeepCompareEffect from "use-deep-compare-effect";
+
+interface UseQuery<ResultType> {
+  isLoading: boolean;
+  error: string;
+  data: ResultType;
+  refetch: () => void;
+}
+
+const useQuery = <ResultType extends {}, VariablesType extends {} = {}>(
+  query: string,
+  variables?: VariablesType
+): UseQuery<ResultType> => {
+  const [data, setData] = useState({} as ResultType);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  const fetchData = async (query: string, variables?: VariablesType) => {
+    setIsLoading(true);
+    try {
+      const response = (await API.graphql(
+        graphqlOperation(query, variables)
+      )) as {
+        data: ResultType;
+      };
+      setData(response.data);
+    } catch (error) {
+      setError(error);
+    }
+    setIsLoading(false);
+  };
+
+  const refetch = () => {
+    fetchData(query, variables);
+  };
+
+  useDeepCompareEffect(() => {
+    fetchData(query, variables);
+  }, [query, variables]);
+
+  return { data, isLoading, error, refetch };
+};
+
+export default useQuery;
+```
+
+And there you have it! A useQuery hook that abstracts all the fetching logic for us, and with full TypeScript support!
+
+This was the first hook I've ever written myself and if you already know React, then it's surprisingly easy to do. By far the hardest part was all the TypeScripty stuff, which is something I'm actively learning still.
+
+Happy Coding!
