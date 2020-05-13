@@ -61,6 +61,8 @@ I really really like these transitions. Instead of transitioning the font-size a
 
 One problem I had at first, was by scaling the label down, it would scale vertically like I wanted, but the horizonal scale would be dependant on how long the label text was. This meant that as the transition started moving the label up towards the top of the input box, it would also start moving along the x axis different distances depending on how long the label text was.
 
+![An example of the form transition without transform-origin](./without-transform-origin.gif)
+
 The `transform-origin` CSS property is what came to the rescue. The `transform-origin` property sets the point around which a transformation is applied, so by setting it to left (`transform-origin: left;`), that meant that the left side of the text became fixed, and when the label scaled down, it still scaled horizontally, but only the right side scaled in. Perfect.
 
 Furthermore, by reducing the number of CSS properties that are transitioning, I was able to make better use of the CSS `will-change` property, which tells the browser which properties are going to change so it can make further optimizations. Bonus.
