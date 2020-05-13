@@ -1,0 +1,53 @@
+---
+title: A simple HTML form with performant CSS transitions and accessibility
+date: 2020-05-14
+excerpt: I built a HTML form using only performant CSS transitions and keeping to accessibility standards
+tags: [Programming, HTML, accessibility]
+---
+
+![sunrise](./quino-al-mBQIfKlvowM-unsplash.jpg)
+Photo by Quino Al on Unsplash
+
+## Introduction
+
+In my latest side project, I have two main goals:
+
+1. To learn TypeScript properly by vowing to never use the `any` keyword; and
+2. To make the app as web accessible as possible.
+
+Number 2 means that all of the functionality of the web app should be easily accessible to keyboard and hearing-impaired users. This is making development take a fair bit longer than it usually would, but it's a good learning exercise for me, and I think it's something we (as developers) should all be mindful of.
+
+When it came time to build a form, I took a lot of inspiration from the form designs we use at flaik, but I wanted to improve a few things.
+
+Firstly, each input field at flaik has a number of nested divs to achieve the desired aesthetic look. I think they are unnecessary and only make the HTML cluttered. I wanted to use CSS in a way that would reduce the number of div elements needed.
+
+Secondly, while using CSS transitions can make the UX much better, not all CSS properties are treated equally when it comes to transitions. For example, using CSS transitions on color, font-size, height, width etc require the browser to repaint for each frame which isn't performant at all. However using CSS transitions on transforms like translateX, translateY, scale and rotate don't require repaints and can actually use the GPU to handle the transitions.
+
+Thirdly, as I'm not a hearing impaired, or sight impaired person, I researched quite a bit into how to make the form accessible, which mostly boils down to following best practices like ensuring each input field has a label. I also wanted to make sure I didn't remove any hover/focus styling is important for keyboard only users to see which input field they are editing.
+
+As I'm building my app in React, I originally build this form as a React component. But I also
+
+<p
+  class="codepen"
+  data-height="474"
+  data-theme-id="light"
+  data-default-tab="result"
+  data-user="Burfield"
+  data-slug-hash="mdejQBE"
+  data-preview="true"
+  style="height: 474px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; border: 2px solid; margin: 1em 0; padding: 1em;"
+  data-pen-title="Simple HTML form with performant CSS transitions and accessibility standards"
+>
+  <span>
+    See the Pen{" "}
+    <a href="https://codepen.io/Burfield/pen/mdejQBE">
+      Simple HTML form with performant CSS transitions and accessibility
+      standards
+    </a>{" "}
+    by Matthew Burfield (<a href="https://codepen.io/Burfield">@Burfield</a>) on{" "}
+    <a href="https://codepen.io">CodePen</a>.
+  </span>
+</p>
+<script async src="https://static.codepen.io/assets/embed/ei.js"></script>
+
+Happy Coding!
