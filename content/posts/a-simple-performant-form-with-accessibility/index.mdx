@@ -25,7 +25,7 @@ Secondly, while using CSS transitions can make the UX much better, not all CSS p
 
 Thirdly, as I'm not a hearing impaired, or sight impaired person, I researched quite a bit into how to make the form accessible, which mostly boils down to following best practices like ensuring each input field has a label. I also wanted to make sure I didn't remove any hover/focus styling is important for keyboard only users to see which input field they are editing.
 
-As I'm building my app in React, I originally build this form as a React component. But I also
+As I'm building my app in React, I originally build this form as a React component. But I then refactored it to CodePen and removed any dependencies on frameworks, it's just straight HTML/CSS/JS.
 
 <p
   class="codepen"
@@ -48,6 +48,25 @@ As I'm building my app in React, I originally build this form as a React compone
     <a href="https://codepen.io">CodePen</a>.
   </span>
 </p>
-<script async src="https://static.codepen.io/assets/embed/ei.js"></script>
+
+I'm super happy with the end result.
+
+The HTML is nice and simple, with just a HTML form element, and just a single container div surrounding each label and input combo.
+
+Using absolute positioning, I was able to position the label on top of the input such that it looks like the input placeholder - but the HTML markup is still as you would expect with the two elements being siblings so screen readers will understand it.
+
+With JavaScript, I added an event listener on the `focus` and `blur` events which adds and removes a `focused` and `hasValue` class to the input container div. It was important to put the classes on the container and not the input element, because then styling the label later on becomes much easier.
+
+I really really like these transitions. Instead of transitioning the font-size and the line-height and maybe the top and left positions, which would cause a lot of re-painting by the browser and potentially janky transitions, I instead used the used the `transform` property, and translated the X and Y position, and scaled the font down to _give the effect of_ reducing the font size.
+
+One problem I had at first, was by scaling the label down, it would scale vertically like I wanted, but the horizonal scale would be dependant on how long the label text was. This meant that as the transition started moving the label up towards the top of the input box, it would also start moving along the x axis different distances depending on how long the label text was.
+
+The `transform-origin` CSS property is what came to the rescue. The `transform-origin` property sets the point around which a transformation is applied, so by setting it to left (`transform-origin: left;`), that meant that the left side of the text became fixed, and when the label scaled down, it still scaled horizontally, but only the right side scaled in. Perfect.
+
+Furthermore, by reducing the number of CSS properties that are transitioning, I was able to make better use of the CSS `will-change` property, which tells the browser which properties are going to change so it can make further optimizations. Bonus.
+
+I hope you enjoy the form, and if there are any accessibility things you think I missed, please reach out to me.
 
 Happy Coding!
+
+<script async src="https://static.codepen.io/assets/embed/ei.js"></script>
