@@ -15,7 +15,7 @@ In my latest side project, I have two main goals:
 1. To learn TypeScript properly by vowing to never use the `any` keyword; and
 2. To make the app as web accessible as possible.
 
-Number 2 means that all of the functionality of the web app should be easily accessible to keyboard and hearing-impaired users. This is making development take a fair bit longer than it usually would, but it's a good learning exercise for me, and I think it's something we (as developers) should all be mindful of.
+Number 2 means that all of the functionality of the web app should be easily accessible to keyboard users, hearing-impaired users and sight-impaired users. This is making development take a fair bit longer than it usually would, but it's a good learning exercise for me, and I think it's something we (as developers) should all be mindful of.
 
 When it came time to build a form, I took a lot of inspiration from the form designs we use at flaik, but I wanted to improve a few things.
 
@@ -23,7 +23,7 @@ Firstly, each input field at flaik has a number of nested divs to achieve the de
 
 Secondly, while using CSS transitions can make the UX much better, not all CSS properties are treated equally when it comes to transitions. For example, using CSS transitions on color, font-size, height, width etc require the browser to repaint for each frame which isn't performant at all. However using CSS transitions on transforms like translateX, translateY, scale and rotate don't require repaints and can actually use the GPU to handle the transitions.
 
-Thirdly, as I'm not a hearing impaired, or sight impaired person, I researched quite a bit into how to make the form accessible, which mostly boils down to following best practices like ensuring each input field has a label. I also wanted to make sure I didn't remove any hover/focus styling is important for keyboard only users to see which input field they are editing.
+Thirdly, as I'm not a hearing impaired, or sight impaired person, I researched quite a bit into how to make the form accessible, which mostly boils down to following best practices like ensuring each input field has a label. I also wanted to make sure I didn't remove any important hover/focus styling which keyboard only users use to see which input field they are editing.
 
 As I'm building my app in React, I originally build this form as a React component. But I then refactored it to CodePen and removed any dependencies on frameworks, it's just straight HTML/CSS/JS.
 
@@ -55,9 +55,9 @@ The HTML is nice and simple, with just a HTML form element, and just a single co
 
 Using absolute positioning, I was able to position the label on top of the input such that it looks like the input placeholder - but the HTML markup is still as you would expect with the two elements being siblings so screen readers will understand it.
 
-With JavaScript, I added an event listener on the `focus` and `blur` events which adds and removes a `focused` and `hasValue` class to the input container div. It was important to put the classes on the container and not the input element, because then styling the label later on becomes much easier.
+With JavaScript, I added an event listener on the input element's `focus` and `blur` events which adds and removes a `focused` and `hasValue` class to the input container div. It was important to put the classes on the container and not the input element itself, because then styling the label later on becomes much easier.
 
-I really really like these transitions. Instead of transitioning the font-size and the line-height and maybe the top and left positions, which would cause a lot of re-painting by the browser and potentially janky transitions, I instead used the used the `transform` property, and translated the X and Y position, and scaled the font down to _give the effect of_ reducing the font size.
+I really really like these transitions. Instead of transitioning the font-size and the line-height and maybe the top and left positions, which would cause a lot of re-painting by the browser and potentially janky transitions, I instead used the `transform` property, and translated the X and Y position, and scaled the font down to _give the effect of_ reducing the font size.
 
 One problem I had at first, was by scaling the label down, it would scale vertically like I wanted, but the horizonal scale would be dependant on how long the label text was. This meant that as the transition started moving the label up towards the top of the input box, it would also start moving along the x axis different distances depending on how long the label text was.
 
