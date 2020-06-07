@@ -13,11 +13,22 @@ Photo by Dawid Zawiła on Unsplash
 
 This is the second part of a two part series where we're doing a deep dive into coercion. In the first part of the series we learnt what coercion means in programming, and looked at the differences between coercion and type casting. Then we went on to dig deeper into JavaScript specifics, and learnt about Abstract Operations that are defined by the ECMAScript specification which define the set of rules that JavaScript follows when converting a type from one type to another. If you haven't read part one yet, [you can find it here](https://matthewburfield.com/javascript-deep-dive-coercion/).
 
-In similar style to part one, I feel like I should give a big shout out to the book series "You don't know JS" (YDKJS) by Kyle Simpson. If you really want to deep dive into JavaScript I highly suggest you give it a read. He has a chapter on ["Types & Grammar"](https://github.com/getify/You-Dont-Know-JS/blob/1st-ed/types%20%26%20grammar/ch4.md) which I referenced for a lot of the content of this blog post.
+In a similar style to part one, I feel like I should give a big shout out to the book series "You don't know JS" (YDKJS) by Kyle Simpson. If you really want to deep dive into JavaScript I highly suggest you give it a read. He has a chapter on ["Types & Grammar"](https://github.com/getify/You-Dont-Know-JS/blob/1st-ed/types%20%26%20grammar/ch4.md) which I referenced for a lot of the content of this blog post.
 
 So, we learnt a lot about what coercion is in the first part of the series, but there's still a lot more we need to learn! Specifically, I think we need a practical guide on how we can use coercion in JavaScript _safely_, and which parts of coercion we can use to make our code easier to ready and less likely to contain bugs.
 
 Let's deep dive in to each of the common conversions we're likely to use in our code and look at common patterns developers use to coerce types.
+
+## Coercing a number --> string
+
+I think one of the first coercions I ever used as a JavaScript programmer (even though I didn't really understand what it meant at the time), was converting a number to a string.
+
+```javascript
+42 + ""; //"42"
+```
+
+String("42")
+42 + ""
 
 ## Coercing a string --> number
 
