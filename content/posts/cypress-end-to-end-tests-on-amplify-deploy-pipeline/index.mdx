@@ -1,0 +1,564 @@
+---
+title: Building a mobile first menu in React
+date: 2020-06-22
+excerpt: Tutorial on how I built a mobile first main menu in React
+tags: [tutorial, React, PWA]
+---
+
+![sunrise](./cristina-gottardi-iEGXkSXRXN4-unsplash.jpg)
+Photo by Cristina Gottardi on Unsplash
+
+## Introduction
+
+I recently deployed my AWS Amplify app, and added end-to-end (E2E) testing with cypress in the build pipeline. This means everytime I push a commit to GitHub, Amplify will automatically provision and build my app, and then run any E2E tests.
+
+If a test fails, then Amplify will stop the pipeline and won't deploy. You can also set up alerts so you get an email or slack notification when the pipeline fails.
+
+![failed pipeline](./failed-pipeline.png)
+A failed pipeline build in AWS Amplify
+
+If everything passes, then it will deploy the app as well! This my friends, is continuous integration and deployment (CI/CD) and if you haven't seen it in action before, it's pretty sweet.
+
+![passing pipeline](./passing-pipeline.png)
+A passing and completed build in AWS Amplify
+
+I spent a fair amount of time getting this working, and many of the resources I found online (like this [tutorial](https://aws.amazon.com/blogs/mobile/run-end-to-end-cypress-tests-for-your-fullstack-ci-cd-deployment-with-amplify-console/)), were all out of date. So I decided to write a new tutorial - I hope it helps!
+
+## Let's get started.
+
+### Set up a project locally
+
+I'll be using create-react-app for my app, but you can substitute that with whichever framework you want. I also like to use `yarn` as my package manager, but if you prefer `npm`, just substitute any yarn commands with the npm equivalent.
+
+```bash
+npx create-react-app amplify-e2e
+cd amplify-e2e
+```
+
+Now initialize Amplify by running the `npx amplify init` command. I've added all the responses that I entered, but again, substitute any that you need to match your environment. One thing to note is that I already had an AWS profile set up on my machine, so your last two questions might look a bit different if you don't and need to set one up.
+
+```bash
+npx amplify init
+
+? Enter a name for the project (amplifye2e)
+? Enter a name for the environment (dev)
+? Choose your default editor: (Visual Studio Code)
+? Choose the type of app that you're building (javascript)
+Please tell us about your project
+? What javascript framework are you using (react)
+? Source Directory Path (src)
+? Distribution Directory Path (build)
+? Build Command (yarn build)
+? Start Command (yarn start)
+? Do you want to use an AWS profile? (Yes)
+? Please choose the profile you want to use (amplify-cli)
+```
+
+Now add authentication to your backend.
+
+```bash
+npx amplify add auth
+
+? Do you want to use the default authentication and security configuration? (Default configuration)
+? How do you want users to be able to sign in? (Username)
+? Do you want to configure advanced settings? (No, I am done.)
+
+npx amplify push
+```
+
+Now let's add an authentication component to our app! Amplify has pre-built UI components for React, Vue, Angular and React Native. You can read more about them in [the Amplify documentation](https://docs.amplify.aws/lib/auth/getting-started/q/platform/js#option-1-use-pre-built-ui-components).
+
+```bash
+yarn add aws-amplify @aws-amplify/ui-react
+```
+
+Update your `/src/App.js` with the following changes:
+
+/src/App.js
+
+```jsx
+import React from 'react';
+import logo from './logo.svg';
+import './App.css';
+
++ import Amplify from "aws-amplify";
++ import { withAuthenticator, AmplifySignOut } from "@aws-amplify/ui-react";
++ import aws_exports from "./aws-exports";
++ Amplify.configure(aws_exports);
+
+
+function App() {
+  return (
+    <div className="App">
++     <AmplifySignOut />
+      <header className="App-header">
+        <img src={logo} className="App-logo" alt="logo" />
+        <p>
+          Edit <code>src/App.js</code> and save to reload.
+        </p>
+        <a
+          className="App-link"
+          href="https://reactjs.org"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Learn React
+        </a>
+      </header>
+    </div>
+  );
+}
+
+- export default App;
++ export default withAuthenticator(App);
+```
+
+Now let's run our project locally with the `yarn start` command.
+
+```bash
+yarn start
+```
+
+With that, you should see a browser window open with the Amplify Auth UI. Create a new account and log in. Remember the login details as you will use this account later for our E2E test!
+
+![Creating a new user](./creating-a-user.gif)
+Creating a new user locally
+
+### Side note - View your user in Cognito
+
+Just a quick side note as this took me a while to figure out as well. If you're new to Amplify, you might wonder where the user you just created is stored. You can see the users for your Amplify apps by logging into the AWS console and going to the Cognito service. Click on "manage user pools" and then the name of your app. Amplify creates the name for you, mine's called: "amplifye2ef97ea632_userpool_f97ea632-dev". Click on that.
+
+You should be presented with this screen:
+
+![Screenshot of AWS console - user pool](./aws-console-user-group.png)
+You app's AWS user pool
+
+Then click on "Users and groups" in the left hand menu which will take you to your users.
+
+![Screenshot of AWS console - app users](./aws-console-users.png)
+You app's AWS users
+
+### Create your first E2E test with Cypress
+
+Cypress is a popular JavaScript-based testing framework for running E2E tests in the browser. Let's first install Cypress.
+
+```bash
+yarn add cypress --dev
+```
+
+When we first load Cypress, Cypress will initialize some files within our app - we'll take a look at these in a second. First, let's run Cypress on our app.
+
+```bash
+yarn start // (only if your local dev server isn't already running)
+yarn cypress open
+```
+
+![Loading screen of cypress on first load](./cypress-initial-load.png)
+Loading screen of Cypress on first load
+
+Here we can see the files that Cypress has injected into our app. They include some sample tests, and some configuration. For now we can just click the "OK, got it!" button.
+
+Now that cypress has been initialized, feel free to click on the "Run all specs" button if you've never used Cypress before and want to see it in action, otherwise you can move on :)
+
+### Bonus - Preparing Cypress to record to the Cypress dashboard
+
+Cypress has a dashboard that you can use to report on all of your test runs!
+
+![Screenshot of cypress dashboard](./cypress-dashboard.png)
+Screenshot of the Cypress dashboard
+
+We can set up our project with Cypress now so later on when we are running our tests they save to the dashboard
+
+Back in our Cypress test runner window, click on the "Runs" tab, and then click on "Setup project to record". Cypress should guide you though a couple of steps to get setup.
+
+![The runs tab of cypress window](./cypress-runs-tab.png)
+The "Runs" tab of Cypress window
+
+![Setting up your cypress project](./cypress-setup-project.png)
+Setting up your Cypress project
+
+![Cypress project confirmation window](./cypress-record-finish.png)
+Cypress project confirmation window
+
+Take note of the **projectId** and the **--key** because we'll use them both later.
+
+### Cypress setup
+
+First we need to update the `/cypress.json` file to add some configuration settings. We want to add a base url so that in our tests, we don't need to type our "http://localhost:5000" every time, for each test. So let's add that now.
+
+cypress.json
+
+```json
+{
+  "baseUrl": "http://localhost:5000"
+}
+```
+
+Note that I'm using port 5000 because that's what [serve](https://www.npmjs.com/package/serve) uses by default (more on this later). If you are hosting your app somewhere else, just adjust your baseUrl accordingly.
+
+We can also add our project id from the previous step so that cypress will record the results of our tests and send them to the cypress dashboard.
+
+```json
+{
+  "baseUrl": "http://localhost:5000",
++ "projectId": "ecbjt5"
+}
+```
+
+Next, I like to add all my e2e tests to a folder named "e2e", instead of the default "integration" folder that cypress creates. (Thanks to Kent C. Dodds for this tip). We can update the `cypress.json` file to accommodate this:
+
+cypress.json
+
+```json
+{
+  "baseUrl": "http://localhost:5000",
+  "projectId": "ecbjt5",
++  "integrationFolder": "cypress/e2e",
+}
+```
+
+There's one last piece of configuration we need to do before we can test the authentication flow. Since Amplify updated it's UI components to the `@aws-amplify/ui-react` library, it now uses a shadow DOM to inject the Authentication UI which makes it a little trickier to test because the standard query selectors won't work.
+
+Fortunately, as of version 4.8.0, cypress has [added an experimental feature](https://docs.cypress.io/guides/references/changelog.html#4-8-0) to support the shadow DOM! We just need to set one more flag in our cypress.json file to enable it.
+
+cypress.json
+
+```json
+{
+  "baseUrl": "http://localhost:5000",
+  "projectId": "ecbjt5",
+  "integrationFolder": "cypress/e2e",
++ "experimentalShadowDomSupport": true,
+}
+```
+
+That's all the configuration we need to get rolling. Now let's go add some E2E tests!
+
+### Creating our E2E tests
+
+We need to create a new folder that matches our new integrationFolder path that we just created, so inside the `cypress` directory, create a new folder called "e2e". Inside the "e2e" folder, let's create our first test `authenticator.spec.js`
+
+This should give you a project file structure like this.
+
+```text
+- amplify-e2e
+  - amplify
+  - cypress
++    - e2e
++      `authenticator.spec.js`
+    - fixtures
+    - integration
+    - plugins
+    - support
+  - node_modules
+  - public
+  - src
+    .gitignore
+    cypress.json
+    package.json
+    README.md
+    yarn.lock
+```
+
+Here is the code for your first test. I've tried to add explanations in the comments
+
+```jsx
+// Update these constants to match whatever username and password you
+// created your user with
+const USERNAME = "UPDATE_USER_NAME_HERE";
+const PASSWORD = "UPDATE_PASSWORD_HERE";
+
+describe("Authenticator:", function () {
+  // Step 1: before each test, we want to visit our app.
+  // Note that this takes into account the base url that we
+  // already configured. So the final address will be
+  // "http://localhost:5000/"
+  beforeEach(function () {
+    cy.visit("/");
+  });
+
+  describe("Sign In:", () => {
+    it("allows a user to signin", () => {
+      // Step 2: Usually we can use cy.get to go locate the
+      // button or field that we want to action directly, but
+      // because of the shadow DOM, we can only use cy.get on
+      // elements outside any shadow DOM. So here we get the element
+      // outside the shadow DOM, and then use cy.find command, passing
+      // in the "includeShadowDom: true" flag, to tell cypress to look
+      // inside the shadow DOM.
+
+      // Cypress commands are all asynchronise and can be chained together.
+      // Which is what I'm doing here. If you want, you can read more about
+      // it in the cypress documentation:
+      // https://docs.cypress.io/guides/getting-started/writing-your-first-test.html#Add-a-test-file
+      cy.get("amplify-authenticator")
+        .find(selectors.usernameInput, {
+          includeShadowDom: true,
+        })
+        .type(USERNAME);
+
+      cy.get("amplify-authenticator")
+        .find(selectors.signInPasswordInput, {
+          includeShadowDom: true,
+        })
+        .type(PASSWORD, { force: true });
+
+      // This one was a bit tricky to get to. It seems as though
+      // there are two sign in buttons and cypress doesn't like
+      // trying to click on two buttons at the same time,
+      // so I'm chaining the .first() method to just take the
+      // first button it finds.
+      cy.get("amplify-authenticator")
+        .find(selectors.signInSignInButton, {
+          includeShadowDom: true,
+        })
+        .first()
+        .find("button[type='submit']", { includeShadowDom: true })
+        .click({ force: true });
+
+      // Step 3: Make an assertion (Check for sign-out text)
+      // By this stage we should be logged in. Cypress has many different
+      // assertions. Here we're just checking to see if the page contains
+      // the sign-out button.
+      cy.get("amplify-sign-out")
+        .find(selectors.signOutButton, { includeShadowDom: true })
+        .contains("Sign Out");
+    });
+  });
+});
+
+export const selectors = {
+  // Auth component classes
+  usernameInput: 'input[data-test="sign-in-username-input"]',
+  signInPasswordInput: 'input[data-test="sign-in-password-input"]',
+  signInSignInButton: 'amplify-button[data-test="sign-in-sign-in-button"]',
+  signOutButton: "amplify-button",
+};
+```
+
+Now we can run cypress again and (fingers crossed) we should see our test pass!
+
+Run cypress again by running the command
+
+```bash
+yarn cypress open
+```
+
+And you should see your `authenticator.spec.js` test ready to go. If you are still seeing all the example tests that cypress added or not seeing any tests, go back and look at the configuration steps. Changes are your "integrationFolder" configuration doesn't match the path that you added your `authenticator.spec.js` test.
+
+Hopefully we now have a passing test! Whoop whoop.
+
+### Set up continuous delivery with the Amplify Console
+
+The Amplify console provides a continuous deployment and hosting service for our amplify apps. To get started with our continuous deployment, let's first push our code to GitHub (or the git provider of your choice).
+
+I created a new repo on GitHub called "amplify-e2e" and then ran these commands. Obviously change the origin to point to your own repo.
+
+```bash
+git add .
+git commit -m "initialised app and added auth with e2e test"
+git remote add origin https://github.com/Matthew-Burfield/amplify-e2e.git
+git push origin master
+```
+
+Now log into the [AWS amplify console](console.aws.amazon.com/amplify) and you should see your app there. Note that if your app isn't there, you might need to switch to your region to the one you set up amplify with.
+
+Clicking through to your app will show you a list of git providers. I'm selecting GitHub since that's where I pushed my code to, you can select whichever git provider you used.
+
+![Screenshot of the list of repository providers in AWS console](./selecting-repository-provider.png)
+The list of repository providers in AWS console
+
+Click "connect branch"
+
+If you haven't already authorized amplify to your repository service provider, amplify will prompt you to do that, then select your repo and branch and click next.
+
+![Screenshot of selecting the repo and branch](./selecting-repo-and-branch.png)
+Selecting your repo and branch
+
+The next screen will be the build settings configuration. If you've followed all the steps so far, amplify should automatically detect you're using React for your frontend framework, and cypress for your testing framework.
+
+What we're interested in here is the "Build and test settings".
+
+![Screenshot of build and test settings in AWS console](./build-and-test-settings.png)
+The default build and test settings
+
+The build phase should work out of the box, but the test phase uses wait-on and pm2 to start a server, and then mochawesome to generate a test report.
+
+I'm not very familiar with any of those libraries and couldn't get them working. Plus I'd rather use the `serve` command that create-react-app recommends to start a server with the build files, and then I use the dashboard feature of cypress to record all the test outputs.
+
+Let's first update the commands in the build and test settings, and then we'll go back to our app later and create those commands.
+
+Replace your build and test settings with this:
+
+```yaml
+version: 1
+backend:
+  phases:
+    build:
+      commands:
+        - "# Execute Amplify CLI with the helper script"
+        - amplifyPush --simple
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - yarn install
+    build:
+      commands:
+        - yarn run build
+  artifacts:
+    baseDirectory: build
+    files:
+      - "**/*"
+  cache:
+    paths:
+      - node_modules/**/*
+      - "~/.cache"
+      - "/root/.cache/Cypress"
+test:
+  artifacts:
+    baseDirectory: cypress
+    configFilePath: "**/mochawesome.json"
+    files:
+      - "**/*.png"
+      - "**/*.mp4"
+  phases:
+    preTest:
+      commands:
+        - yarn install --frozen-lockfile
+    test:
+      commands:
+        - yarn ci:e2e
+    postTest:
+      commands:
+        - npx kill-port 5000
+```
+
+The only thing that's changed, is that the `npm ci` command was replaced with it's yard equivalent `yarn install --freeze-lockfile`, which just prevents any more package changes from happening.
+
+"If you need reproducible dependencies, which is usually the case with the continuous integration systems, you should pass --frozen-lockfile flag." - [the yarn documentation](https://classic.yarnpkg.com/en/docs/cli/install)
+
+The rest of the default preTests which were used for starting a server have all been removed, because that is all going to be handled by our `yarn ci:e2e`.
+
+Speaking of which, let's create the `ci:e2e` command now.
+
+Open your `package.json` file and file the "scripts" entry. We need to add three new scripts.
+
+package.json
+
+```json
+"scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
++    "serve": "npx serve -s build",
++    "cy:run": "cypress run --record",
++    "ci:e2e": "npx kill-port 5000 && npx start-server-and-test serve http://localhost:5000 cy:run",
+  },
+```
+
+The first four scripts, "start", "build", "test" and "eject" were created automatically by create-react-app. The last three are the ones we need to add. Below are descriptions about what each script is used for:
+
+1. **"serve"**: This will create a static server with our production build that we can test against. Remembering that by the time CI runs this script, a successful build will have already been completed. If you want to learn more about the serve command, you can see it in [the create-react-app docs](https://create-react-app.dev/docs/deployment)
+2. **"cy:run"**: Using the "cypress run" command will run our e2e tests in headless mode. Which means that no browser window opens up, and the results are outputted to the console, perfect for when we are testing from our CI/CD server. We also pass cypress the --record flag to tell it to record the tests and send to the cypress dashboard.
+3. **"ci:e2e"**: This is where it all comes together. First we kill any processes running on port 5000, just in case. Then we use a library called [start-server-and-test](https://www.npmjs.com/package/start-server-and-test) which will run the start server command (serve), and then wait for a response from the server before starting the tests. Exactly what we need.
+
+The last piece of the testing puzzle is that we need to also pass they "key" parameter to cypress when we are recording our tests.
+
+I've purposely left this until last because I'm in two minds about the best approach, and it comes down to which tests you want to record. If you want to record all tests, regardless if they are run locally or on the CI server, then you can just add the key directly in the `package.json` file after the --record flag. For example
+
+package.json
+
+```json
+"scripts": {
+  ...
+-    "cy:run": "cypress run --record",
++    "cy:run": "cypress run --record --key 428b202f-20f8-46ca-a99f-5c751d4869e0",
+  ...
+}
+```
+
+However, if you only want to record the tests that are run on the CI server, then omit the --key flag, and instead, we can add the key via the exports command. For example
+
+```bash
+export CYPRESS_RECORD_KEY=428b202f-20f8-46ca-a99f-5c751d4869e0
+```
+
+If you decide to do the latter (and only record the tests run from the CI) then we need to make sure our CI runs the above command.
+
+To do this, log back into the AWS console, and go to "Build settings". Look for the `yarn ci:e2e` test command that we added earlier, and add the export command above just before it.
+
+Your build script should now look like this:
+
+```yml
+version: 1
+backend:
+  phases:
+    build:
+      commands:
+        - "# Execute Amplify CLI with the helper script"
+        - amplifyPush --simple
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - yarn install
+    build:
+      commands:
+        - yarn run build
+  artifacts:
+    baseDirectory: build
+    files:
+      - "**/*"
+  cache:
+    paths:
+      - node_modules/**/*
+      - "~/.cache"
+      - "/root/.cache/Cypress"
+test:
+  artifacts:
+    baseDirectory: cypress
+    configFilePath: "**/mochawesome.json"
+    files:
+      - "**/*.png"
+      - "**/*.mp4"
+  phases:
+    preTest:
+      commands:
+        - yarn install --frozen-lockfile
+    test:
+      commands:
+        - export CYPRESS_RECORD_KEY=428b202f-20f8-46ca-a99f-5c751d4869e0
+        - yarn ci:e2e
+    postTest:
+      commands:
+        - npx kill-port 5000
+```
+
+Finally, we are ready to ROLL!! You can run your tests locally by running:
+
+```bash
+yarn ci:e2e
+```
+
+You should see the server spin up, and then the tests run and output the results to the console. After it finishes you should be able to go the [the cypress dashboard](https://dashboard.cypress.io/) and see the output from the test you just ran!
+
+![Screenshot of the cypress dashboard with first test results](./cypress-dashboard-first-test.png)
+Screenshot of the cypress dashboard with first test results
+
+And now whenever you push to your git provider, you should see Amplify running your tests and outputting the logs to the Cypress dashboard!
+
+## Conclusion
+
+Phew! That was a lot. Take a minute and think about everything we just did.
+
+We successfully set up a pipeline in Amplify that will continuously build and deploy our app. Not only that, but it will also run any end-to-end tests that we have using Cypress, and output those tests to the Cypress Dashboard!
+
+Having this infrastructure in place will enable us to develop with speed and confidence knowing that our apps are fully tested before deployment!
+
+Happy days.
+
+Thanks for reading, and until next time,
+
+Happy Coding!
