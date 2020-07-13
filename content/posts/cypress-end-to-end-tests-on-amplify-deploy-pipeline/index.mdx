@@ -131,12 +131,12 @@ Just a quick side note as this took me a while to figure out as well. If you're 
 You should be presented with this screen:
 
 ![Screenshot of AWS console - user pool](./aws-console-user-group.png)
-You app's AWS user pool
+Your app's AWS user pool
 
 Then click on "Users and groups" in the left hand menu which will take you to your users.
 
 ![Screenshot of AWS console - app users](./aws-console-users.png)
-You app's AWS users
+Your app's AWS users
 
 ### Create your first E2E test with Cypress
 
@@ -167,7 +167,7 @@ Cypress has a dashboard that you can use to report on all of your test runs!
 ![Screenshot of cypress dashboard](./cypress-dashboard.png)
 Screenshot of the Cypress dashboard
 
-We can set up our project with Cypress now so later on when we are running our tests they save to the dashboard
+We can set up our project with Cypress now so later on when we are running our tests they save to the dashboard.
 
 Back in our Cypress test runner window, click on the "Runs" tab, and then click on "Setup project to record". Cypress should guide you though a couple of steps to get setup.
 
@@ -184,23 +184,23 @@ Take note of the **projectId** and the **--key** because we'll use them both lat
 
 ### Cypress setup
 
-First we need to update the `/cypress.json` file to add some configuration settings. We want to add a base url so that in our tests, we don't need to type our "http://localhost:5000" every time, for each test. So let's add that now.
+First we need to update the `/cypress.json` file to add some configuration settings. We want to add a base url so that in our tests, we don't need to type out "http://localhost:3000" every time, for each test. So let's add that now.
 
 cypress.json
 
 ```json
 {
-  "baseUrl": "http://localhost:5000"
+  "baseUrl": "http://localhost:3000"
 }
 ```
 
-Note that I'm using port 5000 because that's what [serve](https://www.npmjs.com/package/serve) uses by default (more on this later). If you are hosting your app somewhere else, just adjust your baseUrl accordingly.
+Note that I'm using port 3000 because that's what create-react-app uses by default. If you're hosting your app somewhere else, just adjust your baseUrl accordingly.
 
 We can also add our project id from the previous step so that cypress will record the results of our tests and send them to the cypress dashboard.
 
 ```json
 {
-  "baseUrl": "http://localhost:5000",
+  "baseUrl": "http://localhost:3000",
 + "projectId": "ecbjt5"
 }
 ```
@@ -211,7 +211,7 @@ cypress.json
 
 ```json
 {
-  "baseUrl": "http://localhost:5000",
+  "baseUrl": "http://localhost:3000",
   "projectId": "ecbjt5",
 +  "integrationFolder": "cypress/e2e",
 }
@@ -225,7 +225,7 @@ cypress.json
 
 ```json
 {
-  "baseUrl": "http://localhost:5000",
+  "baseUrl": "http://localhost:3000",
   "projectId": "ecbjt5",
   "integrationFolder": "cypress/e2e",
 + "experimentalShadowDomSupport": true,
@@ -236,7 +236,7 @@ That's all the configuration we need to get rolling. Now let's go add some E2E t
 
 ### Creating our E2E tests
 
-We need to create a new folder that matches our new integrationFolder path that we just created, so inside the `cypress` directory, create a new folder called "e2e". Inside the "e2e" folder, let's create our first test `authenticator.spec.js`
+We need to create a new folder that matches our new integrationFolder path that we just created, so inside the `cypress` directory, create a new folder called "e2e". Inside the "e2e" folder, let's create our first test, `authenticator.spec.js`
 
 This should give you a project file structure like this.
 
@@ -272,7 +272,7 @@ describe("Authenticator:", function () {
   // Step 1: before each test, we want to visit our app.
   // Note that this takes into account the base url that we
   // already configured. So the final address will be
-  // "http://localhost:5000/"
+  // "http://localhost:3000/"
   beforeEach(function () {
     cy.visit("/");
   });
@@ -344,7 +344,7 @@ Run cypress again by running the command
 yarn cypress open
 ```
 
-And you should see your `authenticator.spec.js` test ready to go. If you are still seeing all the example tests that cypress added or not seeing any tests, go back and look at the configuration steps. Changes are your "integrationFolder" configuration doesn't match the path that you added your `authenticator.spec.js` test.
+And you should see your `authenticator.spec.js` test ready to go. If you are still seeing all the example tests that cypress added or not seeing any tests, go back and look at the configuration steps. Chances are your "integrationFolder" configuration doesn't match the path that you added your `authenticator.spec.js` test.
 
 Hopefully we now have a passing test! Whoop whoop.
 
@@ -453,7 +453,7 @@ package.json
     "test": "react-scripts test",
     "eject": "react-scripts eject",
 +    "serve": "npx serve -s build",
-+    "cy:run": "cypress run --record",
++    "cy:run": "cypress run --record --key 428b202f-20f8-46ca-a99f-5c751d4869e0 --config baseUrl=http://localhost:5000",
 +    "ci:e2e": "npx kill-port 5000 && npx start-server-and-test serve http://localhost:5000 cy:run",
   },
 ```
@@ -461,80 +461,17 @@ package.json
 The first four scripts, "start", "build", "test" and "eject" were created automatically by create-react-app. The last three are the ones we need to add. Below are descriptions about what each script is used for:
 
 1. **"serve"**: This will create a static server with our production build that we can test against. Remembering that by the time CI runs this script, a successful build will have already been completed. If you want to learn more about the serve command, you can see it in [the create-react-app docs](https://create-react-app.dev/docs/deployment)
-2. **"cy:run"**: Using the "cypress run" command will run our e2e tests in headless mode. Which means that no browser window opens up, and the results are outputted to the console, perfect for when we are testing from our CI/CD server. We also pass cypress the --record flag to tell it to record the tests and send to the cypress dashboard.
+2. **"cy:run"**: Using the "cypress run" command will run our e2e tests in headless mode. Which means that no browser window opens up, and the results are outputted to the console, perfect for when we are testing from our CI/CD server.
+
+We pass to cypress the --record flag to tell it to record the tests and send to the cypress dashboard;
+
+The --key parameter is required when cypress is recording to be able to send the output to the Cypress dashboard.
+
+And finally, the --config parameter tells Cypress to use the baseUrl on port 5000, instead of 3000. This is because when running our tests in CI, we are testing against the built project (using serve), instead of the development server.
+
 3. **"ci:e2e"**: This is where it all comes together. First we kill any processes running on port 5000, just in case. Then we use a library called [start-server-and-test](https://www.npmjs.com/package/start-server-and-test) which will run the start server command (serve), and then wait for a response from the server before starting the tests. Exactly what we need.
 
 The last piece of the testing puzzle is that we need to also pass they "key" parameter to cypress when we are recording our tests.
-
-I've purposely left this until last because I'm in two minds about the best approach, and it comes down to which tests you want to record. If you want to record all tests, regardless if they are run locally or on the CI server, then you can just add the key directly in the `package.json` file after the --record flag. For example
-
-package.json
-
-```json
-"scripts": {
-  ...
--    "cy:run": "cypress run --record",
-+    "cy:run": "cypress run --record --key 428b202f-20f8-46ca-a99f-5c751d4869e0",
-  ...
-}
-```
-
-However, if you only want to record the tests that are run on the CI server, then omit the --key flag, and instead, we can add the key via the exports command. For example
-
-```bash
-export CYPRESS_RECORD_KEY=428b202f-20f8-46ca-a99f-5c751d4869e0
-```
-
-If you decide to do the latter (and only record the tests run from the CI) then we need to make sure our CI runs the above command.
-
-To do this, log back into the AWS console, and go to "Build settings". Look for the `yarn ci:e2e` test command that we added earlier, and add the export command above just before it.
-
-Your build script should now look like this:
-
-```yml
-version: 1
-backend:
-  phases:
-    build:
-      commands:
-        - "# Execute Amplify CLI with the helper script"
-        - amplifyPush --simple
-frontend:
-  phases:
-    preBuild:
-      commands:
-        - yarn install
-    build:
-      commands:
-        - yarn run build
-  artifacts:
-    baseDirectory: build
-    files:
-      - "**/*"
-  cache:
-    paths:
-      - node_modules/**/*
-      - "~/.cache"
-      - "/root/.cache/Cypress"
-test:
-  artifacts:
-    baseDirectory: cypress
-    configFilePath: "**/mochawesome.json"
-    files:
-      - "**/*.png"
-      - "**/*.mp4"
-  phases:
-    preTest:
-      commands:
-        - yarn install --frozen-lockfile
-    test:
-      commands:
-        - export CYPRESS_RECORD_KEY=428b202f-20f8-46ca-a99f-5c751d4869e0
-        - yarn ci:e2e
-    postTest:
-      commands:
-        - npx kill-port 5000
-```
 
 Finally, we are ready to ROLL!! You can run your tests locally by running:
 
