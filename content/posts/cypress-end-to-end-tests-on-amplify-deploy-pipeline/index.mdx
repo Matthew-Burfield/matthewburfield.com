@@ -38,7 +38,8 @@ cd amplify-e2e
 Now initialize Amplify by running the `npx amplify init` command. I've added all the responses that I entered, but again, substitute any that you need to match your environment. One thing to note is that I already had an AWS profile set up on my machine, so your last two questions might look a bit different if you don't and need to set one up.
 
 ```bash
-npx amplify init
+yarn global add @aws-amplify/cli
+amplify init
 
 ? Enter a name for the project (amplifye2e)
 ? Enter a name for the environment (dev)
@@ -57,13 +58,13 @@ Please tell us about your project
 Now add authentication to your backend.
 
 ```bash
-npx amplify add auth
+amplify add auth
 
 ? Do you want to use the default authentication and security configuration? (Default configuration)
 ? How do you want users to be able to sign in? (Username)
 ? Do you want to configure advanced settings? (No, I am done.)
 
-npx amplify push
+amplify push
 ```
 
 Now let's add an authentication component to our app! Amplify has pre-built UI components for React, Vue, Angular and React Native. You can read more about them in [the Amplify documentation](https://docs.amplify.aws/lib/auth/getting-started/q/platform/js#option-1-use-pre-built-ui-components).
@@ -228,7 +229,7 @@ cypress.json
   "baseUrl": "http://localhost:3000",
   "projectId": "ecbjt5",
   "integrationFolder": "cypress/e2e",
-+ "experimentalShadowDomSupport": true,
++ "experimentalShadowDomSupport": true
 }
 ```
 
@@ -361,7 +362,7 @@ git remote add origin https://github.com/Matthew-Burfield/amplify-e2e.git
 git push origin master
 ```
 
-Now log into the [AWS amplify console](console.aws.amazon.com/amplify) and you should see your app there. Note that if your app isn't there, you might need to switch to your region to the one you set up amplify with.
+Now log into the [AWS amplify console](https://console.aws.amazon.com/console/home) and you should see your app there. Note that if your app isn't there, you might need to switch to your region to the one you set up amplify with.
 
 Clicking through to your app will show you a list of git providers. I'm selecting GitHub since that's where I pushed my code to, you can select whichever git provider you used.
 
@@ -454,24 +455,25 @@ package.json
     "eject": "react-scripts eject",
 +    "serve": "npx serve -s build",
 +    "cy:run": "cypress run --record --key 428b202f-20f8-46ca-a99f-5c751d4869e0 --config baseUrl=http://localhost:5000",
-+    "ci:e2e": "npx kill-port 5000 && npx start-server-and-test serve http://localhost:5000 cy:run",
++    "ci:e2e": "npx kill-port 5000 && npx start-server-and-test serve http://localhost:5000 cy:run"
   },
 ```
 
 The first four scripts, "start", "build", "test" and "eject" were created automatically by create-react-app. The last three are the ones we need to add. Below are descriptions about what each script is used for:
 
 1. **"serve"**: This will create a static server with our production build that we can test against. Remembering that by the time CI runs this script, a successful build will have already been completed. If you want to learn more about the serve command, you can see it in [the create-react-app docs](https://create-react-app.dev/docs/deployment)
+
 2. **"cy:run"**: Using the "cypress run" command will run our e2e tests in headless mode. Which means that no browser window opens up, and the results are outputted to the console, perfect for when we are testing from our CI/CD server.
 
-We pass to cypress the --record flag to tell it to record the tests and send to the cypress dashboard;
+We pass to cypress the "record" flag to tell it to record the tests and send to the cypress dashboard;
 
-The --key parameter is required when cypress is recording to be able to send the output to the Cypress dashboard.
+The "key" parameter is required when cypress is recording to be able to send the output to the Cypress dashboard.
 
-And finally, the --config parameter tells Cypress to use the baseUrl on port 5000, instead of 3000. This is because when running our tests in CI, we are testing against the built project (using serve), instead of the development server.
+And finally, the "config" parameter tells Cypress to use the baseUrl on port 5000, instead of 3000. This is because when running our tests in CI, we are testing against the built project (using serve), instead of the development server.
 
-3. **"ci:e2e"**: This is where it all comes together. First we kill any processes running on port 5000, just in case. Then we use a library called [start-server-and-test](https://www.npmjs.com/package/start-server-and-test) which will run the start server command (serve), and then wait for a response from the server before starting the tests. Exactly what we need.
+3. **"ci:build-and-serve"**: This will just fire off two commands in sequence, first a build, and then "serve", which we just defined above.
 
-The last piece of the testing puzzle is that we need to also pass they "key" parameter to cypress when we are recording our tests.
+4. **"ci:e2e"**: This is where it all comes together. First we kill any processes running on port 5000, just in case. Then we use a library called [start-server-and-test](https://www.npmjs.com/package/start-server-and-test) which will run the start server command (serve), and then wait for a response from the server before starting the tests. Exactly what we need.
 
 Finally, we are ready to ROLL!! You can run your tests locally by running:
 
@@ -485,6 +487,16 @@ You should see the server spin up, and then the tests run and output the results
 Screenshot of the cypress dashboard with first test results
 
 And now whenever you push to your git provider, you should see Amplify running your tests and outputting the logs to the Cypress dashboard!
+
+Let's do it now:
+
+```bash
+git add .
+git commit -m "Added CI build and test scripts"
+git push origin master
+```
+
+Now take a sip of coffee and watch on the Amplify console as it builds, tests and deploys your project for you! ☕️✌
 
 ## Conclusion
 
