@@ -181,32 +181,29 @@ Setting up your Cypress project
 ![Cypress project confirmation window](./cypress-record-finish.png)
 Cypress project confirmation window
 
-Take note of the **projectId** and the **--key** because we'll use them both later.
+In order to have Amplify push the results of your tests to the dashboard, you need to give it the "key" which I prefer to add as an environment variable in the AWS console. Logging into the [AWS amplify console](https://console.aws.amazon.com/console/home) and clicking on "Environment variables" in your app settings, create an environment variable called "CYPRESS_RECORD_KEY" and attach your key.
+
+![Adding environment variables to the AWS console](./aws-console-add-environment-variables.png)
+Adding environment variables to the AWS console
 
 ### Cypress setup
 
 First we need to update the `/cypress.json` file to add some configuration settings. We want to add a base url so that in our tests, we don't need to type out "http://localhost:3000" every time, for each test. So let's add that now.
 
+If you followed along on the previous steps, you should see cypress has already added your project id. If it hasn't, just run the cypress test runner again and get it from the "Runs" tab like in the previous step.
+
 cypress.json
 
 ```json
 {
-  "baseUrl": "http://localhost:3000"
+  "projectId": "ecbjt5",
++  "baseUrl": "http://localhost:3000"
 }
 ```
 
 Note that I'm using port 3000 because that's what create-react-app uses by default. If you're hosting your app somewhere else, just adjust your baseUrl accordingly.
 
-We can also add our project id from the previous step so that cypress will record the results of our tests and send them to the cypress dashboard.
-
-```json
-{
-  "baseUrl": "http://localhost:3000",
-+ "projectId": "ecbjt5"
-}
-```
-
-Next, I like to add all my e2e tests to a folder named "e2e", instead of the default "integration" folder that cypress creates. (Thanks to Kent C. Dodds for this tip). We can update the `cypress.json` file to accommodate this:
+Next, I like to add all my e2e tests to a folder named "e2e", instead of the default "integration" folder that cypress creates. (Thanks to [Kent C. Dodds](https://twitter.com/kentcdodds) for this tip). We can update the `cypress.json` file to accommodate this:
 
 cypress.json
 
@@ -383,16 +380,12 @@ What we're interested in here is the "Build and test settings".
 ![Screenshot of build and test settings in AWS console](./build-and-test-settings.png)
 The default build and test settings
 
-The build phase should work out of the box, but the test phase uses wait-on and pm2 to start a server, and then mochawesome to generate a test report.
-
-I'm not very familiar with any of those libraries and couldn't get them working. Plus I'd rather use the `serve` command that create-react-app recommends to start a server with the build files, and then I use the dashboard feature of cypress to record all the test outputs.
-
-Let's first update the commands in the build and test settings, and then we'll go back to our app later and create those commands.
+Most of it works out of the box, but there are a few things we need to update in for our create-react-app app, and to record our test results on the cypress dashboard.
 
 Replace your build and test settings with this:
 
 ```yaml
-version: 1
+version: 0.1
 backend:
   phases:
     build:
@@ -403,10 +396,10 @@ frontend:
   phases:
     preBuild:
       commands:
-        - yarn install
+        - yarn install --frozen-lockfile
     build:
       commands:
-        - yarn run build
+        - yarn build
   artifacts:
     baseDirectory: build
     files:
@@ -414,8 +407,6 @@ frontend:
   cache:
     paths:
       - node_modules/**/*
-      - "~/.cache"
-      - "/root/.cache/Cypress"
 test:
   artifacts:
     baseDirectory: cypress
@@ -427,76 +418,58 @@ test:
     preTest:
       commands:
         - yarn install --frozen-lockfile
+        - yarn add mocha mochawesome mochawesome-merge mochawesome-report-generator
+        - "npx serve -l 3000 -s build & npx wait-on http://127.0.0.1:3000"
     test:
       commands:
-        - yarn ci:e2e
+        - 'npx cypress run --record --reporter mochawesome --reporter-options "reportDir=cypress/report/mochawesome-report,overwrite=false,html=false,json=true,timestamp=mmddyyyy_HHMMss"'
     postTest:
       commands:
-        - npx kill-port 5000
+        - npx mochawesome-merge@4 cypress/report/mochawesome-report/*.json > cypress/report/mochawesome.json
+        - npx kill-port 3000
 ```
 
-The only thing that's changed, is that the `npm ci` command was replaced with it's yard equivalent `yarn install --freeze-lockfile`, which just prevents any more package changes from happening.
+There are a few things that have changed from the default, and a few things that have stayed the same. Let's just go through each step together.
 
-"If you need reproducible dependencies, which is usually the case with the continuous integration systems, you should pass --frozen-lockfile flag." - [the yarn documentation](https://classic.yarnpkg.com/en/docs/cli/install)
+The first step is the backend. Amplify uses the Amplify CLI to run "amplifyPush --simple" which will do all the setup for you for any amplify services you are using. It also re-creates the `aws-exports.js` file for you, since we don't push it to our git repository because it contains sensitive information.
 
-The rest of the default preTests which were used for starting a server have all been removed, because that is all going to be handled by our `yarn ci:e2e`.
+Next is the frontend.
 
-Speaking of which, let's create the `ci:e2e` command now.
+the preBuild and build commands should be pretty self explanatory, it's just installing any node_modules via `yarn install`, and then building the project with the `yarn build` command.
 
-Open your `package.json` file and file the "scripts" entry. We need to add three new scripts.
+One thing you might wonder about is the `--freeze-lockfile` flag that is passed to `yarn install`. It's basically the equivalent of the `npm ci` command that was in the default yml file. It prevents any more package changes from happening.
 
-package.json
+According to [the yarn documentation](https://classic.yarnpkg.com/en/docs/cli/install) - "If you need reproducible dependencies, which is usually the case with the continuous integration systems, you should pass --frozen-lockfile flag.
 
-```json
-"scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject",
-+    "serve": "npx serve -s build",
-+    "cy:run": "cypress run --record --key 428b202f-20f8-46ca-a99f-5c751d4869e0 --config baseUrl=http://localhost:5000",
-+    "ci:e2e": "npx kill-port 5000 && npx start-server-and-test serve http://localhost:5000 cy:run"
-  },
-```
+The artifacts will be the built files that we want to deploy. create-react-app puts all our build files in a directory called "build" for us, so we specify that here. Along with the fact that we want to deploy all the files in that folder.
 
-The first four scripts, "start", "build", "test" and "eject" were created automatically by create-react-app. The last three are the ones we need to add. Below are descriptions about what each script is used for:
+Finally is the test phase.
 
-1. **"serve"**: This will create a static server with our production build that we can test against. Remembering that by the time CI runs this script, a successful build will have already been completed. If you want to learn more about the serve command, you can see it in [the create-react-app docs](https://create-react-app.dev/docs/deployment)
+Artifacts work the same as the frontend phase above.
 
-2. **"cy:run"**: Using the "cypress run" command will run our e2e tests in headless mode. Which means that no browser window opens up, and the results are outputted to the console, perfect for when we are testing from our CI/CD server.
+Let's check out the preTest, test and postTest commands since there were a couple of changes here.
 
-We pass to cypress the "record" flag to tell it to record the tests and send to the cypress dashboard;
+The first two commands (`yarn install` and `yarn add`) are exactly the same.
 
-The "key" parameter is required when cypress is recording to be able to send the output to the Cypress dashboard.
+The third command has changed. We can't use the `yarn start` command here because that starts the webpack dev server from react-scripts. Instead we can create a static server with our production build that we can test against. Remembering that by the time CI runs this script, a successful build will have already been completed - it makes sense to test against the build we are just about to deploy. If you want to learn more about the serve command, you can see it in [the create-react-app docs](https://create-react-app.dev/docs/deployment)
 
-And finally, the "config" parameter tells Cypress to use the baseUrl on port 5000, instead of 3000. This is because when running our tests in CI, we are testing against the built project (using serve), instead of the development server.
+The test command has stayed the same, except I've also added the "record" flag to tell it to record the tests and send to the cypress dashboard; Note that we don't need to pass the "key" flag, because we've already added our key as an environment variable.
 
-3. **"ci:build-and-serve"**: This will just fire off two commands in sequence, first a build, and then "serve", which we just defined above.
+And that's it for the build file!
 
-4. **"ci:e2e"**: This is where it all comes together. First we kill any processes running on port 5000, just in case. Then we use a library called [start-server-and-test](https://www.npmjs.com/package/start-server-and-test) which will run the start server command (serve), and then wait for a response from the server before starting the tests. Exactly what we need.
+One last thing to do in build settings, is to update the build image settings. Amplify gives you a list of live package updates that it will maintain for you in your build image. I've added `yarn` and `cypress` to be the latest versions.
 
-Finally, we are ready to ROLL!! You can run your tests locally by running:
+![Amplify console build image settings](./build-image-settings.png)
+Amplify console build image settings
 
-```bash
-yarn ci:e2e
-```
+### Good job!!
 
-You should see the server spin up, and then the tests run and output the results to the console. After it finishes you should be able to go the [the cypress dashboard](https://dashboard.cypress.io/) and see the output from the test you just ran!
+We're done! You can now redeploy from the amplify console, or simply make an update locally and commit/push to your git repo and Amplify will see the new commit come through and redeploy.
 
 ![Screenshot of the cypress dashboard with first test results](./cypress-dashboard-first-test.png)
 Screenshot of the cypress dashboard with first test results
 
-And now whenever you push to your git provider, you should see Amplify running your tests and outputting the logs to the Cypress dashboard!
-
-Let's do it now:
-
-```bash
-git add .
-git commit -m "Added CI build and test scripts"
-git push origin master
-```
-
-Now take a sip of coffee and watch on the Amplify console as it builds, tests and deploys your project for you! ☕️✌
+Take a sip of coffee and watch on the Amplify console as it builds, tests and deploys your project for you! ☕️✌
 
 ## Conclusion
 
