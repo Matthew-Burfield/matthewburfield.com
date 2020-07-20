@@ -28,8 +28,8 @@ A screenshot of my terminal viewing the `git diff` command
 
 With larger code reviews, and reviews with a lot of updates to a single file,
 it's hard to get a sense of what really has changed. In the unified view, you can
-quickly start to lose context of where the changes in a given file are 
-when there is just a big wall of red, followed by a big wall of green (i.e. 
+quickly start to lose context of where the changes in a given file are
+when there is just a big wall of red, followed by a big wall of green (i.e.
 a big deletion followed by a big addition).
 
 Another gripe I have with this approach is if I see a mistake with the code during
@@ -60,14 +60,14 @@ There are a just a few steps involved to get this working:
 Open up your `~/.bashrc` file, or the equivalent for your favourite shell, and
 add this line:
 
-```.bashrc
+```bash
 # For git review alias
 export REVIEW_BASE=master
 ```
 
 Now, open up your `~/.gitconfig` file and add this at the bottom of the file:
 
-```.gitconfig
+```git
 [alias]
   # list files which have changed since REVIEW_BASE
   # (REVIEW_BASE defaults to 'master' in my zshrc)
@@ -92,7 +92,7 @@ you haven't set one up yet, take a quick detour [here](https://github.com/junegu
 and follow the instructions there to setup the plugin manager before moving on
 to the next step)
 
-```.vimrc
+```vim
 " ----------------------------------------------------------------------------
 " Plugins
 " ----------------------------------------------------------------------------
@@ -145,7 +145,8 @@ to the next tab to review the next diff. In Vim, simply type:
 ```
 
 ## Conclusion
- on the fly
+
+on the fly
 This Git flow of comparing changes has really been a game changer for me, I'm
 still able to really quickly review changes from the command line but now I get
 the full power of an editor at my disposal while reviewing. And the side by side

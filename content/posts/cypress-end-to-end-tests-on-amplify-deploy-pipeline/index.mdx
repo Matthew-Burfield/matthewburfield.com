@@ -75,23 +75,22 @@ yarn add aws-amplify @aws-amplify/ui-react
 
 Update your `/src/App.js` with the following changes:
 
-/src/App.js
+```jsx:title=/src/App.js
+import React from "react";
+import logo from "./logo.svg";
+import "./App.css";
 
-```jsx
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
-
-+ import Amplify from "aws-amplify";
-+ import { withAuthenticator, AmplifySignOut } from "@aws-amplify/ui-react";
-+ import aws_exports from "./aws-exports";
-+ Amplify.configure(aws_exports);
-
+// highlight-start
+import Amplify from "aws-amplify";
+import { withAuthenticator, AmplifySignOut } from "@aws-amplify/ui-react";
+import aws_exports from "./aws-exports";
+Amplify.configure(aws_exports);
+// highlight-end
 
 function App() {
   return (
     <div className="App">
-+     <AmplifySignOut />
+      <AmplifySignOut />
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
         <p>
@@ -110,8 +109,7 @@ function App() {
   );
 }
 
-- export default App;
-+ export default withAuthenticator(App);
+export default withAuthenticator(App); // highlight-line
 ```
 
 Now let's run our project locally with the `yarn start` command.
@@ -197,7 +195,7 @@ cypress.json
 ```json
 {
   "projectId": "ecbjt5",
-+  "baseUrl": "http://localhost:3000"
+  "baseUrl": "http://localhost:3000" // highlight-line
 }
 ```
 
@@ -211,7 +209,7 @@ cypress.json
 {
   "baseUrl": "http://localhost:3000",
   "projectId": "ecbjt5",
-+  "integrationFolder": "cypress/e2e",
+  "integrationFolder": "cypress/e2e" // highlight-line
 }
 ```
 
@@ -226,7 +224,7 @@ cypress.json
   "baseUrl": "http://localhost:3000",
   "projectId": "ecbjt5",
   "integrationFolder": "cypress/e2e",
-+ "experimentalShadowDomSupport": true
+  "experimentalShadowDomSupport": true // highlight-line
 }
 ```
 
@@ -242,8 +240,8 @@ This should give you a project file structure like this.
 - amplify-e2e
   - amplify
   - cypress
-+    - e2e
-+      `authenticator.spec.js`
+    - e2e// highlight-line
+      `authenticator.spec.js`// highlight-line
     - fixtures
     - integration
     - plugins
@@ -260,7 +258,7 @@ This should give you a project file structure like this.
 
 Here is the code for your first test. I've tried to add explanations in the comments
 
-```jsx
+```javascript:title=/cypress/e2e/authenticator.spec.js
 // Update these constants to match whatever username and password you
 // created your user with
 const USERNAME = "UPDATE_USER_NAME_HERE";
