@@ -1,4 +1,4 @@
-app = "my-remix-app-51a7"
+app = "matthewburfield-blog"
 kill_signal = "SIGINT"
 kill_timeout = 5
 processes = [ ]
